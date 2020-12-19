@@ -2,6 +2,6 @@
 
 db library wrapped ODBC
 
-examle : 
+examlpe : 
     QueryForObject("select * from tablename where id=?", 1234);
 
