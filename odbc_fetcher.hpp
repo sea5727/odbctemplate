@@ -109,7 +109,7 @@ namespace odbctemplate
             if(col > 0 && help != nullptr){
                 FetchHelper helper{stmt};
                 while((status = SQLFetch(stmt)) != SQL_NO_DATA){
-                    if(col > 0 == status != SQL_NO_DATA){
+                    if(col > 0 && status != SQL_NO_DATA){
                         results.push_back(std::move(help(helper)));
                     }
                 }

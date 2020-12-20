@@ -65,7 +65,6 @@ namespace odbctemplate
             SQLSMALLINT type,
             SQLHANDLE handle ){
 
-            int  e_code = -1;
             SQLINTEGER      native;
             char            state[32 ] = {0,};
             char            text [512] = {0,};

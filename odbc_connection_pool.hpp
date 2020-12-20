@@ -18,7 +18,6 @@ namespace odbctemplate
         unsigned int max_pool = 32;
         unsigned int min_pool = 4;
         unsigned int current_size = 4;
-        std::atomic_int rr_index;
         std::vector<OdbcConnect> pool;
     public:
         OdbcConnectionPool() = default;
@@ -26,10 +25,7 @@ namespace odbctemplate
             : conn_info(conn_info)
             , max_pool(max_pool) 
             , min_pool(min_pool)
-            , current_size(min_pool)
-            , rr_index{0}
-            
-             {
+            , current_size(min_pool) {
             
             std::cout << "create\n";
 
@@ -37,7 +33,7 @@ namespace odbctemplate
 
             std::cout << "reserve\n";
 
-            for(int i = 0 ; i < min_pool ; ++i){
+            for(unsigned int i = 0 ; i < min_pool ; ++i){
                 std::cout << "i:" << i << std::endl;
                 pool.emplace_back(OdbcConnect::get_connection(conn_info));
             }
@@ -56,10 +52,9 @@ namespace odbctemplate
             if(index > max_pool)
                 odbctemplate::OdbcError::Throw("Invalid Connection Pool index"); 
             std::cout << "index : " << index << ", current_size:" << current_size << std::endl;
-            OdbcManager & pm = OdbcManager::getInstance();
 
             if(current_size < index + 1){
-                for(int i = current_size ; i < index + 1 ; ++i){
+                for(unsigned int i = current_size ; i < index + 1 ; ++i){
                     std::cout << "i : " << i << std::endl;
                     pool.emplace_back(OdbcConnect::get_connection(conn_info));
                 }
@@ -69,26 +64,6 @@ namespace odbctemplate
         }
         
         
-        OdbcConnect &
-        get_connection_rr(){
-            int index = rr_index++;
-            index = index % current_size;
-            if(index > max_pool)
-                odbctemplate::OdbcError::Throw("Invalid Connection Pool index"); 
-            std::cout << "index : " << index << ", current_size:" << current_size << std::endl;
-            OdbcManager & pm = OdbcManager::getInstance();
-
-            if(current_size < index + 1){
-                for(int i = current_size ; i < index + 1 ; ++i){
-                    std::cout << "i : " << i << std::endl;
-                    pool.emplace_back(OdbcConnect::get_connection(conn_info));
-                }
-                current_size = index + 1;
-            }
-
-            return pool[index]; // copy??
-        }
-
         void
         put_connection(){
             
