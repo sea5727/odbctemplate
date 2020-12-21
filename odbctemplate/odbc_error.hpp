@@ -14,7 +14,7 @@ namespace odbctemplate
             error_code = -1;
             error_msg = "unknown error";
         } 
-        OdbcError(std::string & message){
+        OdbcError(const std::string & message){
             error_code = -1;
             error_msg = message;
         }
@@ -40,13 +40,13 @@ namespace odbctemplate
         }
 
 
-        static void 
-        Throw() {
-            throw OdbcError{};
-        };
+        // static void 
+        // Throw() {
+        //     throw OdbcError{};
+        // };
         static void 
         Throw(const std::string & error) {
-            throw OdbcError{};
+            throw OdbcError{error};
         };
         static void 
         Throw(Ty_Result error) {

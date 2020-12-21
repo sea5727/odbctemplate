@@ -31,7 +31,7 @@ namespace odbctemplate
                 SQLRETURN status = 0;
                 status = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env);
                 if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw();
+                    odbctemplate::OdbcError::Throw("init_odbc SQLAllocHandle SQL_HANDLE_ENV fail");
                 }
                 status = SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, (void *) SQL_OV_ODBC3, 0);
                 if(status != SQL_SUCCESS){

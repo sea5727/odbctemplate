@@ -3,11 +3,16 @@
 #include "odbc_helper.hpp"
 #include "odbc_error.hpp"
 #include "odbc_stmt.hpp"
+#include "odbc_prepared_stmt.hpp"
 #include "odbc_manager.hpp"
+#include "odbc_fetcher.hpp"
 
 
 namespace odbctemplate
 {
+    // OdbcConnect -> allocStmt -> OdbcStmt -> OdbcPreParedStmt -> Binder -> Fetcher
+    // OdbcConnect -> preparedStmt(query) -> OdbcPreparedStmt -> Binder -> Fetch
+    // OdbcConnect -> queryForObject(query) -> Fetcher
     class OdbcConnect{
     private:
         SQLHDBC dbc = SQL_NULL_HDBC;
@@ -18,8 +23,8 @@ namespace odbctemplate
             std::cout << "OdbcConnect create\n";
         }
         ~OdbcConnect(){
-            if(dbc != SQL_NULL_HDBC)
-                SQLFreeConnect(dbc);
+            // if(dbc != SQL_NULL_HDBC)
+            //     SQLFreeConnect(dbc);
         }
         OdbcConnect(OdbcConnect & copy) 
             : dbc(copy.dbc){
@@ -32,10 +37,12 @@ namespace odbctemplate
             copy.dbc = SQL_NULL_HDBC;
         }
 
+
+        [[deprecated("TEST")]]
         OdbcStmt 
         execute(
             int initial_buffer_size = 1,
-            int fetch_policy = SQL_CLOSE){
+            int fetch_policy = SQL_DROP){
             SQLRETURN status = 0;
 
             SQLHDBC stmt = SQL_NULL_HSTMT;
@@ -47,6 +54,48 @@ namespace odbctemplate
 
             return {stmt};
         }
+
+
+
+        OdbcStmt 
+        allocStmt() {
+            SQLRETURN status = 0;
+
+            SQLHDBC stmt = SQL_NULL_HSTMT;
+
+            status = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
+            if (status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
+            }
+            std::cout << "allocStmt OdbcStmt return\n";
+            return {stmt};
+        }
+
+        OdbcPreparedStmt
+        preparedStmt(const std::string & query){
+            SQLRETURN status = 0;
+
+            SQLHDBC stmt = SQL_NULL_HSTMT;
+
+            status = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
+            if (status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
+            }
+
+            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+            return {stmt};
+        }
+        
+
+        template <typename Param1, typename... Params>
+        Fetcher 
+        preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
+            return preparedStmt(query).bindExecute(p1, rest...);
+        }
+
 
         void
         commit(){
@@ -87,7 +136,7 @@ namespace odbctemplate
             // get handle
             status = SQLAllocHandle (SQL_HANDLE_DBC, env, &dbc);
             if (status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw();
+                odbctemplate::OdbcError::Throw("get_connection SQLAllocHandle SQL_HANDLE_DBC fail");
             }
             status = SQLSetConnectAttr (dbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) &connection_timeout, SQL_IS_POINTER);
             if (status != SQL_SUCCESS){

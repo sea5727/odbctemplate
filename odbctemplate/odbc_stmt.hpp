@@ -10,26 +10,71 @@
 
 namespace odbctemplate
 {
-    class Fetcher;
     class OdbcStmt{
-    private:
+    protected:
         SQLHSTMT stmt = SQL_NULL_HSTMT;
-        // char buffer[10][256] = {"", };
-
     public:
         OdbcStmt() = default;
         OdbcStmt(SQLHSTMT stmt) 
             : stmt(stmt){
+            std::cout << "OdbcStmt create..\n";
+        }
+        OdbcStmt(const OdbcStmt & copy) 
+            : stmt(stmt){
+            std::cout << "OdbcStmt copy create..\n";
+        }
+        OdbcStmt(OdbcStmt && move) 
+            : stmt(stmt){
+            std::cout << "OdbcStmt move create..\n";
         }
         ~OdbcStmt(){
-            SQLFreeStmt(stmt, SQL_DROP);
+            std::cout << "OdbcStmt delete..\n";
+            // SQLFreeStmt(stmt, SQL_DROP);
         }
  
     public:
+
+        OdbcStmt
+        preparedStmt(const std::string & query){
+            SQLRETURN status = 0;
+            status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+            return {stmt};
+        }
+
         Fetcher
         queryForObject(const std::string & query){
-
+            std::cout << "queryForObject start\n";
             SQLRETURN status = 0;
+            status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+            std::cout << "queryForObject fetcher return\n";
+            return {stmt};
+        }
+
+        Fetcher
+        directQueryForObject(const std::string & query){
+            
+            SQLRETURN status = 0;
+            status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+
+            return {stmt};
+        }
+
+        Fetcher
+        preparedQueryForObject(const std::string & query){
+            SQLRETURN status = 0;
+            status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
 
             status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
             if( status != SQL_SUCCESS){
@@ -38,9 +83,28 @@ namespace odbctemplate
 
             return {stmt};
         }
+
         template <typename Param1, typename... Params>
         Fetcher 
         queryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
+            
+            SQLRETURN status = 0;
+            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+
+            bindForParams(1, p1, rest...);
+            status = SQLExecute(stmt);  
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+            }
+            return {stmt};
+        }
+
+        template <typename Param1, typename... Params>
+        Fetcher 
+        preparedQueryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
             
             SQLRETURN status = 0;
             status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
@@ -73,9 +137,9 @@ namespace odbctemplate
 
 
         
-    private:
+    protected:
         void bind(const int index, const odbcString & param) {
-            std::cout << "new bind.. index : " << index << ", param :" << param.string << ", leng:" << param.length << std::endl;
+            // std::cout << "new bind.. index : " << index << ", param :" << param.string << ", leng:" << param.length << std::endl;
             SQLRETURN status = 1;
             status = SQLBindParameter( stmt,
                                     index,
@@ -92,6 +156,7 @@ namespace odbctemplate
             }
         }
         void bind(const int index, const int & param) {
+
             SQLRETURN status = 1;
 
             status = SQLBindParameter( stmt,
@@ -115,9 +180,11 @@ namespace odbctemplate
         }
         template <typename Param1, typename... Params>
         void bindForParams(int index, const Param1 & param, const Params&... rest){
-            std::cout << "bindForParams start\n";
+            std::cout << "bind start\n";
             bind(index, param);
+            std::cout << "bindForParams start\n";
             bindForParams(++index, rest...);
+            std::cout << "bindForParams  end.. start\n";
             return;
         }
 
