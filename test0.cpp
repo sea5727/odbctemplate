@@ -23,27 +23,30 @@ int main(int, char**) {
     auto conn = odbctemplate::OdbcConnect::get_connection("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123");
     const char * query = "select 1 from DUAL;";
 
-    auto results 
-        = conn.preparedExecute("select ? from TBL_SEND_SMS;", 1)
-            .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
-                int result;
-                result = helper.getLong();
-                return result;
-            });
+    // auto resetedStmt = conn.allocStmt();
 
-    auto pre = conn.preparedStmt("selet ? from TBL_SEND_SMS;");
-    auto results1 = pre.bindExecute(1)
-        .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
-            int result;
-            result = helper.getLong();
-            return result;
-        });
-    auto results2 = pre.bindExecute(10)
-        .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
-            int result;
-            result = helper.getLong();
-            return result;
-        });
+    // auto results 
+    //     = conn.preparedExecute("select ? from TBL_SEND_SMS;", 1)
+    //         .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
+    //             int result;
+    //             result = helper.getLong();
+    //             return result;
+    //         });
+
+    // auto pre = conn.preparedStmt("selet ? from TBL_SEND_SMS;");
+    // auto results1 = pre.bindExecute(1)
+    //     .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
+    //         int result;
+    //         result = helper.getLong();
+    //         return result;
+    //     });
+        
+    // auto results2 = pre.bindExecute(10)
+    //     .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
+    //         int result;
+    //         result = helper.getLong();
+    //         return result;
+    //     });
 
     // auto results = conn.allocStmt().queryForObject(query)
     //     .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){

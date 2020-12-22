@@ -28,112 +28,113 @@ namespace odbctemplate
             std::cout << "OdbcStmt move create..\n";
         }
         ~OdbcStmt(){
-            std::cout << "OdbcStmt delete..\n";
-            // SQLFreeStmt(stmt, SQL_DROP);
+            std::cout << "OdbcStmt delete.." << stmt << std::endl;
+            if(stmt != SQL_NULL_HSTMT)
+                SQLFreeStmt(stmt, SQL_DROP);
         }
  
     public:
 
-        OdbcStmt
-        preparedStmt(const std::string & query){
-            SQLRETURN status = 0;
-            status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-            return {stmt};
-        }
+        // OdbcStmt
+        // preparedStmt(const std::string & query){
+        //     SQLRETURN status = 0;
+        //     status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+        //     if(status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
+        //     return {stmt};
+        // }
 
-        Fetcher
-        queryForObject(const std::string & query){
-            std::cout << "queryForObject start\n";
-            SQLRETURN status = 0;
-            status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-            std::cout << "queryForObject fetcher return\n";
-            return {stmt};
-        }
+        // Fetcher
+        // queryForObject(const std::string & query){
+        //     std::cout << "queryForObject start\n";
+        //     SQLRETURN status = 0;
+        //     status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
+        //     std::cout << "queryForObject fetcher return\n";
+        //     return {stmt};
+        // }
 
-        Fetcher
-        directQueryForObject(const std::string & query){
+        // Fetcher
+        // directQueryForObject(const std::string & query){
             
-            SQLRETURN status = 0;
-            status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        //     SQLRETURN status = 0;
+        //     status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
 
-            return {stmt};
-        }
+        //     return {stmt};
+        // }
 
-        Fetcher
-        preparedQueryForObject(const std::string & query){
-            SQLRETURN status = 0;
-            status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        // Fetcher
+        // preparedQueryForObject(const std::string & query){
+        //     SQLRETURN status = 0;
+        //     status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+        //     if(status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
 
-            status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        //     status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
 
-            return {stmt};
-        }
+        //     return {stmt};
+        // }
 
-        template <typename Param1, typename... Params>
-        Fetcher 
-        queryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
+        // template <typename Param1, typename... Params>
+        // Fetcher 
+        // queryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
             
-            SQLRETURN status = 0;
-            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        //     SQLRETURN status = 0;
+        //     status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+        //     if(status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
 
-            bindForParams(1, p1, rest...);
-            status = SQLExecute(stmt);  
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-            return {stmt};
-        }
+        //     bindForParams(1, p1, rest...);
+        //     status = SQLExecute(stmt);  
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
+        //     return {stmt};
+        // }
 
-        template <typename Param1, typename... Params>
-        Fetcher 
-        preparedQueryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
+        // template <typename Param1, typename... Params>
+        // Fetcher 
+        // preparedQueryForObject(const std::string & query, const Param1 & p1, const Params&... rest){
             
-            SQLRETURN status = 0;
-            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        //     SQLRETURN status = 0;
+        //     status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+        //     if(status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
 
-            bindForParams(1, p1, rest...);
-            status = SQLExecute(stmt);  
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-            return {stmt};
-        }
+        //     bindForParams(1, p1, rest...);
+        //     status = SQLExecute(stmt);  
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
+        //     return {stmt};
+        // }
 
-        template <typename Param1, typename... Params>
-        Fetcher 
-        requeryForObject(const Param1 &p1, const Params&... rest){
-            SQLRETURN status = 0;
+        // template <typename Param1, typename... Params>
+        // Fetcher 
+        // requeryForObject(const Param1 &p1, const Params&... rest){
+        //     SQLRETURN status = 0;
 
-            bindForParams(1, p1, rest...);
+        //     bindForParams(1, p1, rest...);
             
-            status = SQLExecute(stmt);
-            if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
+        //     status = SQLExecute(stmt);
+        //     if( status != SQL_SUCCESS){
+        //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+        //     }
             
-            return {stmt};
-        }
+        //     return {stmt};
+        // }
 
 
         

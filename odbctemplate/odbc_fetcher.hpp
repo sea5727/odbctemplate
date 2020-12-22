@@ -7,17 +7,27 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include "odbc_stmt.hpp"
+
 namespace odbctemplate
 {
-    class Fetcher{
+    class Fetcher : OdbcStmt{
     private:
-        SQLHSTMT stmt = SQL_NULL_HSTMT;
+        // SQLHSTMT stmt = SQL_NULL_HSTMT;
     public:
 
         Fetcher() = default;
-        Fetcher(
-            SQLHSTMT stmt) 
-            : stmt(stmt){
+        Fetcher( SQLHSTMT stmt) 
+            : OdbcStmt{stmt}{
+            std::cout << "Fetcher create\n";
+        }
+        Fetcher( const Fetcher & stmt) 
+            : OdbcStmt{stmt}{
+            std::cout << "Fetcher copy\n";
+        }
+        Fetcher( Fetcher && stmt) 
+            : OdbcStmt{stmt}{
+            std::cout << "Fetcher move\n";
         }
         ~Fetcher(){
             std::cout << "delete Fetcher\n";

@@ -15,16 +15,21 @@ namespace odbctemplate
     private:
         // SQLHSTMT stmt = SQL_NULL_HSTMT;
     public:
-        OdbcPreparedStmt() = default;
-        OdbcPreparedStmt(SQLHSTMT stmt) 
+        explicit OdbcPreparedStmt() = default;
+        explicit OdbcPreparedStmt(SQLHSTMT stmt) 
             : OdbcStmt{stmt}{
             std::cout << "OdbcPreparedStmt create..\n";
         }
-        OdbcPreparedStmt(const OdbcPreparedStmt & copy) 
+        explicit OdbcPreparedStmt(OdbcStmt & parent) 
+            : OdbcStmt(parent){
+            std::cout << "OdbcPreparedStmt parent copy create..\n";
+        }
+        explicit OdbcPreparedStmt(const OdbcPreparedStmt & copy) 
             : OdbcStmt(0){
             std::cout << "OdbcPreparedStmt copy create..\n";
         }
-        OdbcPreparedStmt(OdbcPreparedStmt && move) 
+
+        explicit OdbcPreparedStmt(OdbcPreparedStmt && move) 
             : OdbcStmt(0){
             std::cout << "OdbcPreparedStmt move create..\n";
         }
@@ -38,8 +43,7 @@ namespace odbctemplate
         template <typename Param1, typename... Params>
         Fetcher 
         bindExecute(const Param1 & p1, const Params&... rest){
-
-            std::cout << "bindExecute start\n";
+            std::cout << "======== " << __func__ << " start ============" << std::endl;
             SQLRETURN status = 0;
 
             std::cout << "bindForParams start\n";
@@ -49,6 +53,7 @@ namespace odbctemplate
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
             }
+            std::cout << "======== " << __func__ << " end ============" << std::endl;
             return {stmt};
         }
 

@@ -6,6 +6,7 @@
 #include "odbc_prepared_stmt.hpp"
 #include "odbc_manager.hpp"
 #include "odbc_fetcher.hpp"
+#include "odbc_reseted_stmt.hpp"
 
 
 namespace odbctemplate
@@ -57,8 +58,9 @@ namespace odbctemplate
 
 
 
-        OdbcStmt 
+        OdbcResetedStmt 
         allocStmt() {
+            std::cout << "======== allocStmt start ============\n";
             SQLRETURN status = 0;
 
             SQLHDBC stmt = SQL_NULL_HSTMT;
@@ -67,12 +69,13 @@ namespace odbctemplate
             if (status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
             }
-            std::cout << "allocStmt OdbcStmt return\n";
+            std::cout << "======== allocStmt end ============\n";
             return {stmt};
         }
 
         OdbcPreparedStmt
         preparedStmt(const std::string & query){
+            std::cout << "preparedStmt start\n";
             SQLRETURN status = 0;
 
             SQLHDBC stmt = SQL_NULL_HSTMT;
@@ -86,6 +89,7 @@ namespace odbctemplate
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
             }
+            std::cout << "preparedStmt end\n";
             return {stmt};
         }
         
@@ -93,6 +97,9 @@ namespace odbctemplate
         template <typename Param1, typename... Params>
         Fetcher 
         preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
+            std::cout << "preparedExecute start\n";
+            auto stmt = allocStmt();
+            
             return preparedStmt(query).bindExecute(p1, rest...);
         }
 
