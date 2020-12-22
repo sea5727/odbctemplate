@@ -26,7 +26,7 @@ int main(int, char**) {
     auto conn = odbctemplate::OdbcConnect::get_connection("DSN=TST_DB;");
     auto container = conn.execute()
         .queryForObject("select id, test, name from tuto;")
-        .fetch<tuto>([](odbctemplate::Fetcher::FetchHelper helper){
+        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
             tuto result;
             result.id = helper.getLong();
             result.test = helper.getString();
@@ -40,7 +40,6 @@ int main(int, char**) {
         tuto.print();
     }
 
-    
 
     return 0;
 }

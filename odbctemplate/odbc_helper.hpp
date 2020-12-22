@@ -13,7 +13,7 @@ namespace odbctemplate
     class odbcString{
     public:
         odbcString(){
-            std::cout << "default myvalue create\n";
+            //std::cout << "default myvalue create\n";
         }
         odbcString(const char * v)
             : string(v)

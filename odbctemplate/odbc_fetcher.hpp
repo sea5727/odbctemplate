@@ -11,26 +11,34 @@
 
 namespace odbctemplate
 {
-    class Fetcher : OdbcStmt{
+    class OdbcFetcher{
     private:
-        // SQLHSTMT stmt = SQL_NULL_HSTMT;
+        std::shared_ptr<OdbcStmt> stmt;
     public:
+        void
+        print_mystmt(){
+            ////std::cout << "print_mystmt OdbcFetcher, " << stmt->stmt << std::endl;
+        }
 
-        Fetcher() = default;
-        Fetcher( SQLHSTMT stmt) 
-            : OdbcStmt{stmt}{
-            std::cout << "Fetcher create\n";
+        explicit OdbcFetcher() = default;
+        explicit OdbcFetcher(SQLHSTMT stmt) 
+            : stmt{std::make_shared<OdbcStmt>(stmt)}{
+            ////std::cout << "OdbcFetcher create\n";
         }
-        Fetcher( const Fetcher & stmt) 
-            : OdbcStmt{stmt}{
-            std::cout << "Fetcher copy\n";
+        explicit OdbcFetcher(std::shared_ptr<OdbcStmt> stmt) 
+            : stmt{stmt} {
+            ////std::cout << "OdbcFetcher create..\n";
         }
-        Fetcher( Fetcher && stmt) 
-            : OdbcStmt{stmt}{
-            std::cout << "Fetcher move\n";
+        explicit OdbcFetcher(const OdbcFetcher & copy) 
+            : stmt{copy.stmt}{
+            ////std::cout << "OdbcFetcher copy create\n";
         }
-        ~Fetcher(){
-            std::cout << "delete Fetcher\n";
+        explicit OdbcFetcher(OdbcFetcher && move) 
+            : stmt{std::move(move.stmt)}{
+            ////std::cout << "OdbcFetcher move create\n";
+        }
+        ~OdbcFetcher(){
+            ////std::cout << "delete OdbcFetcher\n";
         }
 
         class FetchHelper{
@@ -93,45 +101,73 @@ namespace odbctemplate
 
         void
         fetch(int close_policy = SQL_CLOSE){
-            SQLFreeStmt(stmt, close_policy);
+            SQLFreeStmt(stmt->stmt, close_policy);
         }
 
         template<typename Return_Ty>
-        std::vector<Return_Ty> 
-        fetch(std::function<Return_Ty(FetchHelper)> help, int initial_buf_size = 1, int close_policy = SQL_CLOSE){
-            if(stmt == SQL_NULL_HSTMT){
+        std::vector<Return_Ty>
+        fetch(std::function<Return_Ty(FetchHelper)> help, int initial_buf_size = 1, int close_policy = SQL_CLOSE) {
+            if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
             }
 
             SQLRETURN status;
             SQLSMALLINT col;
-            std::cout << "start SQLNumResultCols error\n";
-            status = SQLNumResultCols(stmt, &col);
-            std::cout << "end SQLNumResultCols error status:" << status << std::endl;
+            status = SQLNumResultCols(stmt->stmt, &col);
             if( status != SQL_SUCCESS){
-                std::cout << "SQLNumResultCols error\n";
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt); // no dbc error;
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt); // no dbc error;
             }
-            std::cout << "SQLNumResultCols vector resrevere start\n";
             std::vector<Return_Ty> results;
-            results.reserve(initial_buf_size);
 
-            std::cout << "SQLFetch start\n";
             if(col > 0 && help != nullptr){
-                FetchHelper helper{stmt};
-                while((status = SQLFetch(stmt)) != SQL_NO_DATA){
+                FetchHelper helper{stmt->stmt};
+                while((status = SQLFetch(stmt->stmt)) == SQL_SUCCESS){
                     if(col > 0 && status != SQL_NO_DATA){
                         results.push_back(std::move(help(helper)));
                     }
                 }
             }
 
-            std::cout << "SQLFreeStmt start\n";
-
-            SQLFreeStmt(stmt, close_policy);
-
+            status = SQLFreeStmt(stmt->stmt, close_policy);
+            //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
             return results;
         }
 
+        template<typename Return_Ty>
+        Return_Ty
+        fetchOne(std::function<Return_Ty(FetchHelper)> help, int close_policy = SQL_CLOSE)  {
+            if(stmt->stmt == SQL_NULL_HSTMT){
+                odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
+            }
+
+            SQLRETURN status;
+            SQLSMALLINT col;
+            status = SQLNumResultCols(stmt->stmt, &col);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt); // no dbc error;
+            }
+            Return_Ty results;
+
+            //std::cout << "=========== fetch start =============== \n";
+            if(col > 0 && help != nullptr){
+                FetchHelper helper{stmt->stmt};
+                status = SQLFetch(stmt->stmt);
+                //std::cout << "SQLFetch status : " << status << std::endl;
+                if(status == SQL_SUCCESS){
+                    if(col > 0 && status != SQL_NO_DATA){
+                        results = help(helper);
+                        //std::cout << "results : " << results << std::endl;
+                    }
+                }
+            }
+            //std::cout << "=========== fetch end =============== \n";
+
+            status = SQLFreeStmt(stmt->stmt, close_policy);
+            //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
+            //std::cout << "return results : " << results << std::endl;
+            return results;
+        }
     };
+
+    
 }

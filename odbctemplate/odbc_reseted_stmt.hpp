@@ -7,49 +7,61 @@
 #include "odbc_fetcher.hpp"
 #include "odbc_stmt.hpp"
 #include "odbc_prepared_stmt.hpp"
+#include "odbc_fetcher.hpp"
 
 
 namespace odbctemplate
 {
-    class OdbcResetedStmt : OdbcStmt{
+    
+    class OdbcResetedStmt{
     private:
-        // SQLHSTMT stmt = SQL_NULL_HSTMT;
+        std::shared_ptr<OdbcStmt> stmt;
     public:
-        OdbcResetedStmt() = default;
-        OdbcResetedStmt(SQLHSTMT stmt) 
-            : OdbcStmt{stmt}{
-            std::cout << "OdbcResetedStmt create..\n";
+        explicit OdbcResetedStmt() = default;
+        explicit OdbcResetedStmt(SQLHSTMT stmt) 
+            : stmt{std::make_shared<OdbcStmt>(stmt)} {
+            //std::cout << "OdbcResetedStmt create..\n";
         }
-        OdbcResetedStmt(const OdbcResetedStmt & copy) 
-            : OdbcStmt(0){
-            std::cout << "OdbcResetedStmt copy create..\n";
+        explicit OdbcResetedStmt(std::shared_ptr<OdbcStmt> stmt) 
+            : stmt{stmt} {
+            //std::cout << "OdbcResetedStmt create..\n";
         }
-        OdbcResetedStmt(OdbcResetedStmt && move) 
-            : OdbcStmt(0){
-            std::cout << "OdbcResetedStmt move create..\n";
+        explicit OdbcResetedStmt(const OdbcResetedStmt & copy)
+            : stmt{copy.stmt} {
+            //std::cout << "OdbcResetedStmt copy create..\n";
+        }
+        explicit OdbcResetedStmt(OdbcResetedStmt && move) 
+            : stmt{std::move(move.stmt)} {
+            //std::cout << "OdbcResetedStmt move create..\n";
         }
         ~OdbcResetedStmt(){
-            std::cout << "OdbcResetedStmt delete..\n";
-            // SQLFreeStmt(stmt, SQL_DROP);
+            //std::cout << "OdbcResetedStmt delete..\n";
         }
  
     public:
         OdbcPreparedStmt
         prepareStmt(const std::string & query){
-            std::cout << "======== " << __func__ << " start ============" << std::endl;
-
-            SQLRETURN status;
-            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;
+            SQLRETURN status = SQLPrepare( stmt->stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
             if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt);
             }
-            std::cout << "======== " << __func__ << " end ============" << std::endl;
-            OdbcStmt * test = this;
-            auto result = OdbcPreparedStmt{test};
-
-            return result;
+            //std::cout << "======== " << __func__ << " end ============" << std::endl;
+            return OdbcPreparedStmt{std::move(stmt)};
         }
-
-
+        
+        OdbcFetcher
+        directExecute(const std::string & query){
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;
+            SQLRETURN status = SQLExecDirect(stmt->stmt, (SQLCHAR *)query.c_str(), query.length());
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt);
+            }
+            return OdbcFetcher{std::move(stmt)};
+        }
+        void
+        print_mystmt(){
+            //std::cout << "print_mystmt OdbcPreparedStmt, " << stmt->stmt << std::endl;
+        }
     };
 }

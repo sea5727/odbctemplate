@@ -21,7 +21,7 @@ namespace odbctemplate
         OdbcConnect() = default;
         OdbcConnect(SQLHDBC dbc) 
             : dbc(dbc){
-            std::cout << "OdbcConnect create\n";
+            //std::cout << "OdbcConnect create\n";
         }
         ~OdbcConnect(){
             // if(dbc != SQL_NULL_HDBC)
@@ -29,38 +29,18 @@ namespace odbctemplate
         }
         OdbcConnect(OdbcConnect & copy) 
             : dbc(copy.dbc){
-            std::cout << "OdbcConnect create copy\n";
+            //std::cout << "OdbcConnect create copy\n";
             copy.dbc = SQL_NULL_HDBC;
         }
         OdbcConnect(OdbcConnect && copy) 
             : dbc(copy.dbc){
-            std::cout << "OdbcConnect create move\n";
+            //std::cout << "OdbcConnect create move\n";
             copy.dbc = SQL_NULL_HDBC;
         }
 
-
-        [[deprecated("TEST")]]
-        OdbcStmt 
-        execute(
-            int initial_buffer_size = 1,
-            int fetch_policy = SQL_DROP){
-            SQLRETURN status = 0;
-
-            SQLHDBC stmt = SQL_NULL_HSTMT;
-
-            status = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
-            if (status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
-            }
-
-            return {stmt};
-        }
-
-
-
         OdbcResetedStmt 
         allocStmt() {
-            std::cout << "======== allocStmt start ============\n";
+            //std::cout << "======== allocStmt start ============\n";
             SQLRETURN status = 0;
 
             SQLHDBC stmt = SQL_NULL_HSTMT;
@@ -69,39 +49,48 @@ namespace odbctemplate
             if (status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
             }
-            std::cout << "======== allocStmt end ============\n";
-            return {stmt};
+            //std::cout << "created stmt : " << stmt << std::endl;
+
+            return OdbcResetedStmt{stmt};
         }
 
         OdbcPreparedStmt
         preparedStmt(const std::string & query){
-            std::cout << "preparedStmt start\n";
-            SQLRETURN status = 0;
-
-            SQLHDBC stmt = SQL_NULL_HSTMT;
-
-            status = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
-            if (status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, dbc);
-            }
-
-            status = SQLPrepare( stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-            std::cout << "preparedStmt end\n";
-            return {stmt};
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;
+            return allocStmt().prepareStmt(query);
         }
-        
+    
+        OdbcFetcher 
+        directExecute(const std::string & query){
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;
+            return allocStmt().directExecute(query);
+        }
+
+        OdbcFetcher 
+        preparedExecute(const std::string & query){
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;           
+            return preparedStmt(query).Execute();
+        }
+
 
         template <typename Param1, typename... Params>
-        Fetcher 
+        OdbcFetcher 
         preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
-            std::cout << "preparedExecute start\n";
-            auto stmt = allocStmt();
-            
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;           
             return preparedStmt(query).bindExecute(p1, rest...);
         }
+
+
+
+
+        // template <typename Param1, typename... Params>
+        // Fetcher 
+        // preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
+        //     //std::cout << "preparedExecute start\n";
+        //     auto stmt = allocStmt();
+            
+        //     return preparedStmt(query).bindExecute(p1, rest...);
+        // }
 
 
         void
@@ -130,7 +119,7 @@ namespace odbctemplate
             const long login_timeout = 10
             ){
             
-            std::cout << "get_connection.." << conn_info << auto_commit << connection_timeout << login_timeout << std::endl;
+            //std::cout << "get_connection.." << conn_info << auto_commit << connection_timeout << login_timeout << std::endl;
             odbctemplate::OdbcManager & pm= odbctemplate::OdbcManager::getInstance();
 
             auto & env = pm.env;

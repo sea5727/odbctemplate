@@ -2,35 +2,33 @@
 
 #include <string.h>
 
-#include "odbc_helper.hpp"
-#include "odbc_error.hpp"
-#include "odbc_fetcher.hpp"
-
-
-
 namespace odbctemplate
 {
     class OdbcStmt{
-    protected:
+    public:
         SQLHSTMT stmt = SQL_NULL_HSTMT;
     public:
-        OdbcStmt() = default;
-        OdbcStmt(SQLHSTMT stmt) 
+        explicit OdbcStmt() = default;
+        explicit OdbcStmt(SQLHSTMT stmt) 
             : stmt(stmt){
-            std::cout << "OdbcStmt create..\n";
+            //std::cout << "OdbcStmt create..\n";
         }
-        OdbcStmt(const OdbcStmt & copy) 
+        explicit OdbcStmt(const OdbcStmt & copy) 
             : stmt(stmt){
-            std::cout << "OdbcStmt copy create..\n";
+            //std::cout << "OdbcStmt copy create..\n";
         }
-        OdbcStmt(OdbcStmt && move) 
+        explicit OdbcStmt(OdbcStmt && move) 
             : stmt(stmt){
-            std::cout << "OdbcStmt move create..\n";
+            stmt = move.stmt;
+            move.stmt = SQL_NULL_HSTMT;
+            //std::cout << "OdbcStmt move create..\n";
         }
         ~OdbcStmt(){
-            std::cout << "OdbcStmt delete.." << stmt << std::endl;
-            if(stmt != SQL_NULL_HSTMT)
-                SQLFreeStmt(stmt, SQL_DROP);
+            if(stmt != SQL_NULL_HSTMT){
+                SQLRETURN status = SQLFreeStmt(stmt, SQL_DROP);
+                //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
+            }
+                
         }
  
     public:
@@ -47,13 +45,13 @@ namespace odbctemplate
 
         // Fetcher
         // queryForObject(const std::string & query){
-        //     std::cout << "queryForObject start\n";
+        //     //std::cout << "queryForObject start\n";
         //     SQLRETURN status = 0;
         //     status = SQLExecDirect(stmt, (SQLCHAR *)query.c_str(), query.length());
         //     if( status != SQL_SUCCESS){
         //         odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
         //     }
-        //     std::cout << "queryForObject fetcher return\n";
+        //     //std::cout << "queryForObject fetcher return\n";
         //     return {stmt};
         // }
 
@@ -138,56 +136,56 @@ namespace odbctemplate
 
 
         
-    protected:
-        void bind(const int index, const odbcString & param) {
-            // std::cout << "new bind.. index : " << index << ", param :" << param.string << ", leng:" << param.length << std::endl;
-            SQLRETURN status = 1;
-            status = SQLBindParameter( stmt,
-                                    index,
-                                    SQL_PARAM_INPUT,
-                                    SQL_C_CHAR,
-                                    SQL_CHAR,
-                                    0,
-                                    0,
-                                    (SQLPOINTER)param.string,
-                                    param.length,
-                                    NULL );
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-        }
-        void bind(const int index, const int & param) {
+    // protected:
+    //     void bind(const int index, const odbcString & param) {
+    //         // //std::cout << "new bind.. index : " << index << ", param :" << param.string << ", leng:" << param.length << std::endl;
+    //         SQLRETURN status = 1;
+    //         status = SQLBindParameter( stmt,
+    //                                 index,
+    //                                 SQL_PARAM_INPUT,
+    //                                 SQL_C_CHAR,
+    //                                 SQL_CHAR,
+    //                                 0,
+    //                                 0,
+    //                                 (SQLPOINTER)param.string,
+    //                                 param.length,
+    //                                 NULL );
+    //         if(status != SQL_SUCCESS){
+    //             odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+    //         }
+    //     }
+    //     void bind(const int index, const int & param) {
 
-            SQLRETURN status = 1;
+    //         SQLRETURN status = 1;
 
-            status = SQLBindParameter( stmt,
-                                    index,
-                                    SQL_PARAM_INPUT,
-                                    SQL_C_SLONG,
-                                    SQL_INTEGER,
-                                    0,
-                                    0,
-                                    (SQLPOINTER)&param,
-                                    sizeof(param),
-                                    NULL );
-            if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
-            }
-        }
+    //         status = SQLBindParameter( stmt,
+    //                                 index,
+    //                                 SQL_PARAM_INPUT,
+    //                                 SQL_C_SLONG,
+    //                                 SQL_INTEGER,
+    //                                 0,
+    //                                 0,
+    //                                 (SQLPOINTER)&param,
+    //                                 sizeof(param),
+    //                                 NULL );
+    //         if(status != SQL_SUCCESS){
+    //             odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+    //         }
+    //     }
 
-        template < typename Params>
-        void bindForParams(int index, const Params& param){
-            bind(index, param);
-        }
-        template <typename Param1, typename... Params>
-        void bindForParams(int index, const Param1 & param, const Params&... rest){
-            std::cout << "bind start\n";
-            bind(index, param);
-            std::cout << "bindForParams start\n";
-            bindForParams(++index, rest...);
-            std::cout << "bindForParams  end.. start\n";
-            return;
-        }
+    //     template < typename Params>
+    //     void bindForParams(int index, const Params& param){
+    //         bind(index, param);
+    //     }
+    //     template <typename Param1, typename... Params>
+    //     void bindForParams(int index, const Param1 & param, const Params&... rest){
+    //         //std::cout << "bind start\n";
+    //         bind(index, param);
+    //         //std::cout << "bindForParams start\n";
+    //         bindForParams(++index, rest...);
+    //         //std::cout << "bindForParams  end.. start\n";
+    //         return;
+    //     }
 
 
 

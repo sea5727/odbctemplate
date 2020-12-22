@@ -24,7 +24,7 @@ int main(int, char**) {
 
     auto container2 = conn.execute()
         .queryForObject("select 1;")
-        .fetch<int>([](odbctemplate::Fetcher::FetchHelper helper){
+        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
             int result;
             result = helper.getLong();
             return result;
@@ -40,7 +40,7 @@ int main(int, char**) {
 
     auto container = conn.execute()
         .queryForObject("select id, test, name from tuto where name=?;", "sangho")
-        .fetch<tuto>([](odbctemplate::Fetcher::FetchHelper helper){
+        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
             tuto result;
             result.id = helper.getLong();
             result.test = helper.getString();
