@@ -37,9 +37,6 @@ int main(int, char**) {
             });
 
 
-        stmt.print_mystmt();
-        prepareStmt.print_mystmt();
-        fetcher.print_mystmt();
     
         std::cout << "r:" << result.at(0) << std::endl;
 

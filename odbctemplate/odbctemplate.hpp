@@ -21,6 +21,7 @@
 #include "odbc_reseted_stmt.hpp"
 #include "odbc_prepared_stmt.hpp"
 #include "odbc_fetcher.hpp"
+#include "odbc_bindcol_stmt.hpp"
 
 
 namespace odbctemplate

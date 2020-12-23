@@ -56,7 +56,7 @@ std::cout << succ << std::endl;
 ```
 
 
-### Example : REUSE QUERY
+### Example : REUSE QUERY ( OdbcPreparedStmt )
 
 ```cpp
 
@@ -78,6 +78,55 @@ while(1){
 }
 
 ```
+
+
+### Example : SELECT LARGE AMOUNT OF DATA ( BindColStmt / BindColHelper )
+
+```cpp
+
+class tuto2 {
+public:
+    long id;
+    char name[64 + 1];
+    char test[64 + 1];
+    char address[128 + 1];
+    void 
+    print(){
+        std::cout << "id : " << id << std::endl;
+        std::cout << "name : " << name << std::endl;
+        std::cout << "test : " << test << std::endl;
+        std::cout << "address : " << address << std::endl;
+    }
+};
+
+... 
+
+tuto2 result;
+
+auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto")
+    .bindCol([&](odbctemplate::OdbcpreparedStmt::BindColHelper helper){
+        helper.setBindColLong(&result.id);
+        helper.setBindColString(result.name, sizeof(result.name));
+        helper.setBindColString(result.test, sizeof(result.test));
+        helper.setBindColString(result.address, sizeof(result.address));
+    });
+
+while(1){
+    auto fetcher = preparedStmt.Execute();
+    auto sel_count = 0;
+    while(fetcher.fetch()){
+        sel_count++;
+        result.print();
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+while(fetcher.fetch()){
+    // result.print();
+}
+
+```
+
 
 
 

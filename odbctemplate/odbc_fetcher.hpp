@@ -50,7 +50,9 @@ namespace odbctemplate
             FetchHelper(SQLHSTMT stmt) 
                 : stmt(stmt) {
             }
-            std::string getString(){
+
+            std::string 
+            getString(){
                 char buffer[MAX_DATA_SIZE] = "";
                 SQLRETURN status;
                 SQLLEN len = 0;
@@ -65,7 +67,8 @@ namespace odbctemplate
                 }
                 return buffer;
             }
-            long getLong(){
+            long 
+            getLong(){
                 long buffer = 0;
                 SQLRETURN status;
                 SQLLEN len = 0;
@@ -81,7 +84,8 @@ namespace odbctemplate
                 }
                 return buffer;
             }
-            short getShort(){
+            short 
+            getShort(){
                 short buffer = 0;
                 SQLRETURN status;
                 SQLLEN len = 0;
@@ -99,20 +103,42 @@ namespace odbctemplate
             }
         };
 
-        template<typename Return_Ty>
-        std::vector<Return_Ty>
-        fetch(std::function<Return_Ty(FetchHelper)> help) {
-            return fetch<Return_Ty, 1>(help);
+        unsigned short int
+        getNumResultCols(){
+            SQLSMALLINT col;
+
+            SQLRETURN status = SQLNumResultCols(stmt->stmt, &col);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
+            }
+
+            return col;
+        }
+        bool
+        fetch(){
+
+            SQLRETURN status;
+            SQLSMALLINT col;
+
+            status = SQLNumResultCols(stmt->stmt, &col);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
+            }
+
+            status = SQLFetch(stmt->stmt);
+
+            if(status == SQL_SUCCESS) return true;
+            // SQL_NO_DATA / SQL_ERROR etc..
+            status = SQLFreeStmt(stmt->stmt, SQL_CLOSE);
+            return false;
         }
 
-        template<typename Return_Ty, int InitialBufferSize>
+
+        template<typename Return_Ty>
         std::vector<Return_Ty>
         fetch(std::function<Return_Ty(FetchHelper)> help) {
             if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
-            }
-            if(InitialBufferSize <= 0){
-                odbctemplate::OdbcError::Throw("invalid initial buffer size"); // no dbc error;
             }
 
 
@@ -124,12 +150,10 @@ namespace odbctemplate
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
             }
-            if(InitialBufferSize <= 0){
-                odbctemplate::OdbcError::Throw("buffer initialize fail [invalid size]"); 
-            }
 
             std::vector<Return_Ty> results;
-            results.reserve(InitialBufferSize);
+            if(col > 0)
+                results.reserve(col);
 
             if(col > 0 && help != nullptr){
                 

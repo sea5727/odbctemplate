@@ -1,11 +1,13 @@
 #pragma once
 
 #include <string.h>
+#include <functional>
 
 #include "odbc_helper.hpp"
 #include "odbc_error.hpp"
 #include "odbc_fetcher.hpp"
 #include "odbc_stmt.hpp"
+#include "odbc_bindcol_stmt.hpp"
 
 
 namespace odbctemplate
@@ -23,7 +25,7 @@ namespace odbctemplate
             : stmt{stmt} {
             // std::cout << "OdbcpreparedStmt shared create..\n";
         }
-        explicit OdbcpreparedStmt(const OdbcpreparedStmt & copy) 
+        OdbcpreparedStmt(const OdbcpreparedStmt & copy) 
             : stmt{copy.stmt}{
             // std::cout << "OdbcpreparedStmt copy create..\n";
         }
@@ -33,13 +35,50 @@ namespace odbctemplate
         }
         ~OdbcpreparedStmt(){
             // std::cout << "OdbcpreparedStmt delete..\n";
-            // SQLFreeStmt(stmt, SQL_DROP);
         }
  
     public:
-        void
-        print_mystmt(){
-            //std::cout << "print_mystmt OdbcprepareStmt, " << stmt->stmt << std::endl;
+        class BindColHelper{
+        public:
+            friend class OdbcpreparedStmt;
+            int             index = 1;
+            SQLHSTMT        stmt  = SQL_NULL_HSTMT;
+        private:
+            BindColHelper() = default;
+            BindColHelper(SQLHSTMT stmt) 
+                : stmt(stmt) {
+            }
+        public:
+            void
+            setBindColLong(long * buffer){
+                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, buffer, 0, NULL);
+                if( status != SQL_SUCCESS){
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
+                }
+            }
+            void
+            setBindColShort(long * buffer){
+                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, buffer, 0, NULL);
+                if( status != SQL_SUCCESS){
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
+                }
+            }
+            void
+            setBindColString(char * buffer, size_t buffer_size){
+                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer, buffer_size, NULL);
+                 if( status != SQL_SUCCESS){
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
+                }
+            }
+            
+        };
+
+        
+        OdbcpreparedStmt
+        bindCol(std::function<void(BindColHelper)> help){
+            BindColHelper helper{stmt->stmt};
+            help(helper);
+            return *this;
         }
 
         template <typename Param1, typename... Params>
@@ -64,6 +103,7 @@ namespace odbctemplate
             return OdbcFetcher{stmt};
         }
 
+    
     private:
         void bind(const int index, const odbcString & param) {
             SQLRETURN status = 1;

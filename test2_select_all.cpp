@@ -27,7 +27,7 @@ int main(int, char**) {
         .build();
 
     auto result1 = conn.directExecute("select id, test, name from tuto;")
-            .fetch<tuto, 1>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();

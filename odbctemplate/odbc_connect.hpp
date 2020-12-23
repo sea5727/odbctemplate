@@ -210,6 +210,7 @@ namespace odbctemplate
         preparedStmt(const std::string & query){
             return allocStmt().preparedStmt(query);
         }
+        
     
         OdbcFetcher 
         directExecute(const std::string & query){
