@@ -4,6 +4,35 @@ Easy db library for C++ wrapping the ODBC client C library
 
 ODBC C 라이브러리를 C++로 랩핑한 쉬운 DB 라이브러리
 
+
+install : yum install unixODBC-devel
+
+maria-db install : https://blog.sleeplessbeastie.eu/2018/01/08/how-to-install-and-configure-mariadb-unixodbc-driver/
+
+# ODBC ? 
+
+HENV : ODBC 버전 및 환경 HANDLE , HENV(1) : HDBC(N) 의 관계
+
+HDBC : DB 커넥션 HANDLE, HDBC(1) : HSTMT(N) 의 관계
+
+HSTMT : DB 쿼리 HANDLE.
+
+
+# SOME ODBC API
+
+SQLAllocHandle : ODBC 핸들 할당
+SQLExecDirect : 쿼리문 하나를 전송
+SQLPrepare : 쿼리문 하나를 Stmt 에 저장
+SQLBindParameter : Prepare 쿼리문에 "?" 에 변수를 바인드
+SQLBindCol : Select 결과 변수에 메모리 바인드
+SQLExecute : Prepare 한 쿼리문을 전송
+SQLFetch : Select 문을 Excute/ExecDirect 후 결과값 (1 row) 을 수신 [ BindCol로 매핑하였으면 해당 메모리에, 안하였으면 SQLGetData 로 하나씩 호출 ]
+SQLGetData : Select 문 결과를 하나씩 호출
+SQLNumREsultCols : Select 결과의 Column 호출
+SQLRowCount : Update/Insert/Delete 결과 Row 호출
+
+
+
 ### Example : Connection 
 
 ```cpp
