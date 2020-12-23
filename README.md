@@ -2,6 +2,18 @@
 
 db library wrapped ODBC
 
-examlpe : 
-    QueryForObject("select * from tablename where id=?", 1234);
+example 
+1.  SELECT
+-  auto result = conn.preparedExecute("select id, test, name from tuto where name=?;", "searchname")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+            });
+    for(auto & tuto : result2){
+        tuto.print();
+
+2. INSERT/UPDATE/DELETE
 
