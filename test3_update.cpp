@@ -29,11 +29,9 @@ int main(int, char**) {
     // auto conn = odbctemplate::OdbcConnect::get_connection("DSN=TST_DB;");
     {
         std::cout << "start test3 step 1\n";
-        auto stmt = conn.allocStmt();
-        auto fetcher = stmt.preparedExecute("update tuto set test=?", "a");
-        auto result = fetcher.getRowCount();
-
-        std::cout << result << std::endl;
+        auto succ = conn.preparedExecute("UPDATE tuto SET test=? where name = ?", "teatvalue", "searchname")
+            .getUpdateRowCount();
+        std::cout << succ << std::endl;
     }
     {
         auto stmt = conn.allocStmt();

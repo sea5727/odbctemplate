@@ -14,6 +14,17 @@ example
             });
     for(auto & tuto : result2){
         tuto.print();
+# Example ( Connection )
+
+```cpp
+
+auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    .setAutocommit(false)
+    .setLoginTimeout(100)
+    .build();
+
+```
+
 
 # Example ( SELECT )
 
@@ -41,5 +52,16 @@ auto result =
 for(auto & tuto : result){
     tuto.print();
 }
+
+```
+
+# Example ( UPDATE / INSERT / DELETE )
+
+```cpp
+
+auto succ = conn.preparedExecute("UPDATE tuto SET test=? where name = ?", "teatvalue", "searchname")
+    .getUpdateRowCount();
+
+std::cout << succ << std::endl;
 
 ```
