@@ -14,9 +14,10 @@ example
             });
     for(auto & tuto : result2){
         tuto.print();
-# Example ( Connection )
+# Example : Connection 
 
 ```cpp
+#include <odbctemplate/odbctemplate.h>
 
 auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
     .setAutocommit(false)
@@ -26,11 +27,9 @@ auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
 ```
 
 
-# Example ( SELECT )
+# Example : SELECT 
 
 ```cpp
-#include <odbctemplate/odbctemplate.h>
-
 
 class tuto {
 public:
@@ -55,7 +54,7 @@ for(auto & tuto : result){
 
 ```
 
-# Example ( UPDATE / INSERT / DELETE )
+# Example : UPDATE / INSERT / DELETE 
 
 ```cpp
 
@@ -65,3 +64,30 @@ auto succ = conn.preparedExecute("UPDATE tuto SET test=? where name = ?", "teatv
 std::cout << succ << std::endl;
 
 ```
+
+
+# Example : REUSE QUERY
+
+```cpp
+
+auto preparedStmt = conn.preparedStmt("select id, test, name from tuto where id=?;");
+
+int i = 0;
+
+while(1){
+    auto result =  preparedStmt.bindExecute(i) //  Execute with parameter binding
+        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            tuto result;
+            result.id = helper.getLong();
+            result.test = helper.getString();
+            result.name = helper.getString();
+            return result;
+        });
+    i += 1;
+    std::this_thread::sleep_for(std::chrono::seconds(1))
+}
+
+```
+
+
+
