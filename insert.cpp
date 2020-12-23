@@ -72,13 +72,62 @@ const std::string currentDateTime() {
 }
 
 
+int
+selectCount(
+    odbctemplate::OdbcConnect & conn,
+    const std::string & table){
+
+    std::string query = "select count(*) from " + table;
+    auto result = conn.directExecute(query)
+        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            int result;
+            result = helper.getLong();
+            return result;
+        });
+
+    if(result.size() == 0)
+        return 0;
+    auto count = result.at(0);
+    return count;
+}
+
+int 
+insertFileN(
+    odbctemplate::OdbcpreparedStmt & stmt, 
+    int insert_count, 
+    unsigned long fileid_key, 
+    int & fileid_index) {
+
+    char fileid[64] = {0,};
+    int succ_count = 0;
+    for(int i = 0 ; i < insert_count ; ++i ){
+        sprintf(fileid, "clientId001_file_%lu_%08d", fileid_key, fileid_index);
+        succ_count += stmt.bindExecute(fileid).getInsertRowCount();
+    }
+    return succ_count;
+}
+int 
+insertMsgN(
+    odbctemplate::OdbcConnect & conn, 
+    int insert_count,
+    const std::string & query ) {
+
+    char fileid[64] = {0,};
+    int succ_count = 0;
+    for(int i = 0 ; i < insert_count ; ++i ){
+        succ_count += conn.directExecute(query).getInsertRowCount();
+    }
+    return succ_count;
+}
+
 int main(int argc, char * argv[]) {
     if(argc < 2){
         std::cout << "param  maximum data  " << std::endl;
         return 0;
     }
 
-    auto rand = time_t(argv[2]);
+    std::time_t rand = std::time(0);   // get time now
+
 
     int limit = std::stoi(argv[1]);
     int interval_sec = 5;
@@ -88,7 +137,12 @@ int main(int argc, char * argv[]) {
     auto fileid_key = rand;
     auto fileid_index = 0;
 
-    auto conn = odbctemplate::OdbcConnect::get_connection("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;");
+    printf("fileid_key:%lu\n", fileid_key);
+
+    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
+        .setAutocommit(true)
+        .setLoginTimeout(10)
+        .build();
 
 
     auto now = std::chrono::system_clock::now();
@@ -117,7 +171,8 @@ int main(int argc, char * argv[]) {
     auto lms_insert_sql = ss_lms_insert_sql.str();
     auto mms_insert_sql = ss_mms_insert_sql.str();
 
-    
+    auto insert_file_stmt = conn.preparedStmt("INSERT INTO TBL_SEND_FILE(RCS_ID, FILE_ID, FILE_NAME, FILE_SIZE, MIMETYPE, ORDER_FLAG) VALUES ('clientId001' , ? , '/opt/img_1_1mb.jpg', 0, 'image/jpeg', 0);");
+
     while(1){
 
         
@@ -130,105 +185,51 @@ int main(int argc, char * argv[]) {
         auto next_time = start_time + std::chrono::seconds(interval_sec);
 
         {
-            std::string query = "select count(*) from TBL_SEND_FILE";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-
+            std::string table = "TBL_SEND_FILE";
+            auto count = selectCount(conn, table);
+            
             if(count < limit){
-                std::cout << "TBL_SEND_FILE count : " << count << std::endl;
-                char fileid[64] = {0,};
-                for(int i = 0 ; i < insert_count ; ++i ){
-                    std::string query =  "INSERT INTO TBL_SEND_FILE(RCS_ID, FILE_ID, FILE_NAME, FILE_SIZE, MIMETYPE, ORDER_FLAG) VALUES ('clientId001' , ? , '/opt/img_1_1mb.jpg', 0, 'image/jpeg', 0);";
-                    sprintf(fileid, "clientId001_file_%d_%016d", fileid_key, fileid_index);
-                    fileid_index += 1;
-                    
-                    conn.preparedStmt(query).bindExecute(fileid)
-                        .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                            int result;
-                            result = helper.getLong();
-                            return result;
-                        });
-                }
-            }
-        }
-
-
-        {
-            std::string query = "select count(*) from tbl_send_sms";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-
-            if(count < limit){
-                std::cout << "TBL_SEND_SMS count : " << count << std::endl;
-                for(int i = 0 ; i < insert_count ; ++i ){
-                    conn.directExecute(sms_insert_sql)
-                        .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                            int result;
-                            result = helper.getLong();
-                            return result;
-                        });
-                }
+                std::cout << "[" << table <<"]" << " count : " << count << std::endl;
+                auto succ_count = insertFileN(insert_file_stmt, insert_count, fileid_key, fileid_index);
+                std::cout << "Insert try : " << insert_count << ", Success : " << succ_count << std::endl;
             }
         }
 
         {
-            std::string query = "select count(*) from TBL_SEND_LMS";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-
+            std::string table = "TBL_SEND_SMS";
+            auto count = selectCount(conn, table);
+            
             if(count < limit){
-                std::cout << "TBL_SEND_LMS count : " << count << std::endl;
-                for(int i = 0 ; i < insert_count ; ++i ){
-                    conn.directExecute(lms_insert_sql)
-                        .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                            int result;
-                            result = helper.getLong();
-                            return result;
-                        });
-                }
+                std::cout << "[" << table <<"]" << " count : " << count << std::endl;
+                auto succ_count = insertMsgN(conn, insert_count, sms_insert_sql);
+                std::cout << "[" << table << "] Insert try : " << insert_count << ", Success : " << succ_count << std::endl;
             }
         }
+
         {
-            std::string query = "select count(*) from TBL_SEND_MMS";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-
+            std::string table = "TBL_SEND_LMS";
+            auto count = selectCount(conn, table);
+            
             if(count < limit){
-                std::cout << "TBL_SEND_MMS count : " << count << std::endl;
-                for(int i = 0 ; i < insert_count ; ++i ){
-                    conn.directExecute(mms_insert_sql)
-                        .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                            int result;
-                            result = helper.getLong();
-                            return result;
-                        });
-                }
+                std::cout << "[" << table <<"]" << " count : " << count << std::endl;
+                auto succ_count = insertMsgN(conn, insert_count, sms_insert_sql);
+                std::cout << "[" << table << "] Insert try : " << insert_count << ", Success : " << succ_count << std::endl;
             }
         }
 
-
-
-
-        
-
+        {
+            std::string table = "TBL_SEND_MMS";
+            auto count = selectCount(conn, table);
+            
+            if(count < limit){
+                std::cout << "[" << table <<"]" << " count : " << count << std::endl;
+                auto succ_count = insertMsgN(conn, insert_count, sms_insert_sql);
+                std::cout << "[" << table << "] Insert try : " << insert_count << ", Success : " << succ_count << std::endl;
+            }
+        }
         std::this_thread::sleep_until(next_time);
     }
+}
 
-}  
+  
 

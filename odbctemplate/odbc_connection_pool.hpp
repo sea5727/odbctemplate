@@ -35,7 +35,7 @@ namespace odbctemplate
 
             for(unsigned int i = 0 ; i < min_pool ; ++i){
                 //std::cout << "i:" << i << std::endl;
-                pool.emplace_back(OdbcConnect::get_connection(conn_info));
+                // pool.emplace_back(OdbcConnect::get_connection(conn_info));
             }
 
             //std::cout << "end\n";
@@ -56,7 +56,7 @@ namespace odbctemplate
             if(current_size < index + 1){
                 for(unsigned int i = current_size ; i < index + 1 ; ++i){
                     //std::cout << "i : " << i << std::endl;
-                    pool.emplace_back(OdbcConnect::get_connection(conn_info));
+                    // pool.emplace_back(OdbcConnect::get_connection(conn_info));
                 }
                 current_size = index + 1;
             }

@@ -61,7 +61,7 @@ namespace odbctemplate
                                     sizeof(buffer), 
                                     (SQLLEN *)&len);
                 if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
                 }
                 return buffer;
             }
@@ -77,7 +77,7 @@ namespace odbctemplate
                                     sizeof(buffer), 
                                     (SQLLEN *)&len);
                 if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
                 }
                 return buffer;
             }
@@ -93,81 +93,96 @@ namespace odbctemplate
                                     sizeof(buffer), 
                                     (SQLLEN *)&len);
                 if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt);
+                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
                 }
                 return buffer;
             }
         };
 
-        void
-        fetch(int close_policy = SQL_CLOSE){
-            SQLFreeStmt(stmt->stmt, close_policy);
-        }
-
         template<typename Return_Ty>
         std::vector<Return_Ty>
-        fetch(std::function<Return_Ty(FetchHelper)> help, int initial_buf_size = 1, int close_policy = SQL_CLOSE) {
+        fetch(std::function<Return_Ty(FetchHelper)> help) {
+            return fetch<Return_Ty, 1>(help);
+        }
+
+        template<typename Return_Ty, int InitialBufferSize>
+        std::vector<Return_Ty>
+        fetch(std::function<Return_Ty(FetchHelper)> help) {
             if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
             }
+            if(InitialBufferSize <= 0){
+                odbctemplate::OdbcError::Throw("invalid initial buffer size"); // no dbc error;
+            }
+
 
             SQLRETURN status;
             SQLSMALLINT col;
+
             status = SQLNumResultCols(stmt->stmt, &col);
+            // std::cout << "SQLNumResultCols : status" << status << ", col : " << col << std::endl;
             if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt); // no dbc error;
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
             }
+            if(InitialBufferSize <= 0){
+                odbctemplate::OdbcError::Throw("buffer initialize fail [invalid size]"); 
+            }
+
             std::vector<Return_Ty> results;
+            results.reserve(InitialBufferSize);
 
             if(col > 0 && help != nullptr){
+                
                 FetchHelper helper{stmt->stmt};
                 while((status = SQLFetch(stmt->stmt)) == SQL_SUCCESS){
+                    // std::cout << "SQLFetch status : " << status << std::endl;
                     if(col > 0 && status != SQL_NO_DATA){
                         results.push_back(std::move(help(helper)));
                     }
                 }
+                // std::cout << "end SQLFetch status : " << status << std::endl;
             }
 
-            status = SQLFreeStmt(stmt->stmt, close_policy);
+            status = SQLFreeStmt(stmt->stmt, SQL_CLOSE);
             //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
             return results;
         }
 
-        template<typename Return_Ty>
-        Return_Ty
-        fetchOne(std::function<Return_Ty(FetchHelper)> help, int close_policy = SQL_CLOSE)  {
+        long 
+        getInsertRowCount(){
+            return getRowCount();
+        }
+        long
+        getUpdateRowCount(){
+            return getRowCount();
+        }
+        long
+        getDeleteRowCount(){
+            return getRowCount();
+        }
+
+        long
+        getRowCount(){ // Insert, Update, Delete
             if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
             }
-
+  
             SQLRETURN status;
-            SQLSMALLINT col;
-            status = SQLNumResultCols(stmt->stmt, &col);
+            
+            // status = SQLFreeStmt(stmt->stmt, SQL_RESET_PARAMS);
+            // std::cout << "getSuccessRow return  : " << status << std::endl;
+            SQLLEN row;
+            status = SQLRowCount(stmt->stmt, &row);
             if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt); // no dbc error;
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
             }
-            Return_Ty results;
 
-            //std::cout << "=========== fetch start =============== \n";
-            if(col > 0 && help != nullptr){
-                FetchHelper helper{stmt->stmt};
-                status = SQLFetch(stmt->stmt);
-                //std::cout << "SQLFetch status : " << status << std::endl;
-                if(status == SQL_SUCCESS){
-                    if(col > 0 && status != SQL_NO_DATA){
-                        results = help(helper);
-                        //std::cout << "results : " << results << std::endl;
-                    }
-                }
-            }
-            //std::cout << "=========== fetch end =============== \n";
-
-            status = SQLFreeStmt(stmt->stmt, close_policy);
-            //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
-            //std::cout << "return results : " << results << std::endl;
-            return results;
+            status = SQLFreeStmt(stmt->stmt, SQL_CLOSE);
+            return row;
         }
     };
+
+
 
     
 }

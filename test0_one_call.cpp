@@ -20,7 +20,10 @@ public:
 };
 
 int main(int, char**) {
-    auto conn = odbctemplate::OdbcConnect::get_connection("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;");
+    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+        .setAutocommit(true)
+        .setLoginTimeout(10)
+        .build();
 
     // {
     //     auto stmt = conn.allocStmt();
@@ -40,7 +43,7 @@ int main(int, char**) {
     //     std::cout << "r:" << result.at(0) << std::endl;
     // }
     // {
-    //     auto prepareStmt = conn.preparedStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
+    //     auto prepareStmt = conn.prepareStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
     //     auto fetcher = prepareStmt.bindExecute(1);
     //     auto result = fetcher.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
     //             int result;

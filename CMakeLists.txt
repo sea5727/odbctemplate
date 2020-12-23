@@ -11,17 +11,19 @@ enable_testing()
 link_directories(/usr/local/lib64 /usr/lib64 )
 link_libraries(odbc)
 
-#add_executable(mysql0 test0_one_call.cpp)
-#add_executable(mysql1 test0_multi_call.cpp)
+add_executable(mysql0 test0_one_call.cpp)
+add_executable(mysql1 test0_multi_call.cpp)
 add_executable(INSERTER.EXE insert.cpp)
 add_executable(TRUNCATER.EXE truncate.cpp)
-# add_executable(test0 test0.cpp)
-# add_executable(test1 test1_select_where.cpp)
-# add_executable(test2 test2_select_all.cpp)
-# add_executable(test3 test3_update.cpp)
-# add_executable(test4 test4_update.cpp)
-# add_executable(test5 test5_autocommit_on_off.cpp)
-# add_executable(test6 test6_connection_pool.cpp)
+add_executable(test1 test1_select_where.cpp)
+add_executable(test2 test2_select_all.cpp)
+add_executable(test3 test3_update.cpp)
+add_executable(test4 test4_connection.cpp)
+add_executable(test6 test6_connection_pool.cpp)
+add_executable(functionchaintest functionchaintest.cpp)
+
+
+# add_executable(generic templatetest.cpp)
 
 
 

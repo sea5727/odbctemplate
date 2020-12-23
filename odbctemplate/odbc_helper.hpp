@@ -24,7 +24,7 @@ namespace odbctemplate
 
     };
     using Ty_Result = std::tuple<
-        int /*error_code*/, // success : 0
+        std::string /*error_code*/, 
         std::string /*error_desc*/>;
     enum JackPotIndex{
         CODE = 0,

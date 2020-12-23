@@ -39,15 +39,15 @@ namespace odbctemplate
         }
  
     public:
-        OdbcPreparedStmt
-        prepareStmt(const std::string & query){
+        OdbcpreparedStmt
+        preparedStmt(const std::string & query){
             //std::cout << "======== " << __func__ << " start ============" << std::endl;
             SQLRETURN status = SQLPrepare( stmt->stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
             if(status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt);
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
             }
             //std::cout << "======== " << __func__ << " end ============" << std::endl;
-            return OdbcPreparedStmt{std::move(stmt)};
+            return OdbcpreparedStmt{stmt};
         }
         
         OdbcFetcher
@@ -55,13 +55,31 @@ namespace odbctemplate
             //std::cout << "======== " << __func__ << " start ============" << std::endl;
             SQLRETURN status = SQLExecDirect(stmt->stmt, (SQLCHAR *)query.c_str(), query.length());
             if( status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt);
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
             }
-            return OdbcFetcher{std::move(stmt)};
+            return OdbcFetcher{stmt};
         }
+
+
+        OdbcFetcher 
+        preparedExecute(const std::string & query){
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;           
+            return preparedStmt(query).Execute();
+        }
+
+
+        template <typename Param1, typename... Params>
+        OdbcFetcher 
+        preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
+            //std::cout << "======== " << __func__ << " start ============" << std::endl;           
+            return preparedStmt(query).bindExecute(p1, rest...);
+        }
+
+
+
         void
         print_mystmt(){
-            //std::cout << "print_mystmt OdbcPreparedStmt, " << stmt->stmt << std::endl;
+            //std::cout << "print_mystmt OdbcprepareStmt, " << stmt->stmt << std::endl;
         }
     };
 }

@@ -8,14 +8,20 @@ namespace odbctemplate
 {
     class OdbcError : public std::exception{
     public :
-        int error_code;
+        std::string error_code;
         std::string error_msg;
         OdbcError(){
-            error_code = -1;
+            error_code = "-1";
             error_msg = "unknown error";
         } 
+        OdbcError(const SQLRETURN status){
+            if(status == -2){
+                error_code = "-2";
+                error_msg = "invalid handle state";
+            }
+        }        
         OdbcError(const std::string & message){
-            error_code = -1;
+            error_code = "-1";
             error_msg = message;
         }
         OdbcError(const Ty_Result & error){
@@ -24,13 +30,34 @@ namespace odbctemplate
         }
         OdbcError( 
             SQLSMALLINT type, 
-            SQLHANDLE handle){
-                auto error = get_odbc_error(type, handle);
-                error_code = std::get<CODE>(error);
-                error_msg = std::get<ERROR_MESSAGE>(error);
+            SQLHANDLE handle,
+            SQLRETURN status){
+                if(status == SQL_INVALID_HANDLE){
+                    error_code = -2;
+                    switch(type){
+                        case SQL_HANDLE_ENV:
+                            error_msg = "[ENV]: SQL_INVALID_HANDLE";
+                        break;
+                        case SQL_HANDLE_DBC:
+                            error_msg = "[DBC]: SQL_INVALID_HANDLE";
+                        break;
+                        case SQL_HANDLE_STMT:
+                            error_msg = "[STMT]: SQL_INVALID_HANDLE";
+                        break;
+                        default:
+                            error_msg = "[Unkown]: SQL_INVALID_HANDLE";
+                        break;
+                    }
+                }
+                else {
+                    auto error = get_odbc_error(type, handle);
+                    error_code = std::get<CODE>(error);
+                    error_msg = std::get<ERROR_MESSAGE>(error);
+                }
+
         }
-        const int code() const noexcept {
-            return error_code;
+        const char * code() const noexcept {
+            return error_code.c_str();
         }
         const char * what() const noexcept override {
             std::stringstream ss;
@@ -40,10 +67,6 @@ namespace odbctemplate
         }
 
 
-        // static void 
-        // Throw() {
-        //     throw OdbcError{};
-        // };
         static void 
         Throw(const std::string & error) {
             throw OdbcError{error};
@@ -55,8 +78,9 @@ namespace odbctemplate
         static void 
         Throw( 
             SQLSMALLINT type, 
-            SQLHANDLE handle) {
-            throw OdbcError{type, handle};
+            SQLHANDLE handle,
+            SQLRETURN status) {
+            throw OdbcError{type, handle, status};
         };
 
         static
@@ -81,14 +105,14 @@ namespace odbctemplate
                                     (SQLCHAR *)text,
                                     sizeof(text), 
                                     &len );
-                //std::cout << "state:" << state << "text:" << text << std::endl;
+                std::cout << "state:" << state << "text:" << text << std::endl;
                 if(ret != SQL_SUCCESS)
                     break;
                 
-                return {std::stoi(state), text};
+                return {state, text};
                 
             }
-            return {-1, "unknown error"};
+            return {"-1", "unknown error"};
         }
     };
 }

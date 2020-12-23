@@ -21,22 +21,23 @@ public:
 
 int main(int, char**) {
 
-    odbctemplate::OdbcManager & pm = odbctemplate::OdbcManager::getInstance();
+    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+        .setAutocommit(true)
+        .setLoginTimeout(10)
+        .build();
 
-    auto conn = odbctemplate::OdbcConnect::get_connection("DSN=TST_DB;");
-    auto container = conn.execute()
-        .queryForObject("select id, test, name from tuto;")
-        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-            tuto result;
-            result.id = helper.getLong();
-            result.test = helper.getString();
-            result.name = helper.getString();
-            result.print();
-            return result;
-    }, 150);
+    auto result1 = conn.directExecute("select id, test, name from tuto;")
+            .fetch<tuto, 1>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+        });
+
 
     std::cout << "select end.. print!!\n";
-    for(auto & tuto : container){
+    for(auto & tuto : result1){
         tuto.print();
     }
 

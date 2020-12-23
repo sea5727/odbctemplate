@@ -71,11 +71,35 @@ const std::string currentDateTime() {
     return buf;
 }
 
+void 
+truncate(
+    odbctemplate::OdbcConnect & conn, const std::string & table){
+    
+    std::string select_query = "select count(*) from " + table;
+    std::string truncate_query = "TRUNCATE TABLE " + table;
+    auto count = conn.directExecute(select_query)
+        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            int result;
+            result = helper.getLong();
+            return result;
+        });
+    if(count.size() > 0){
+        std::cout << table << "select count : " << count.at(0) << std::endl;
+        if(count.at(0) > 1000){
+            auto success = conn.directExecute(truncate_query)
+                .getRowCount();
+            std::cout << table << "truncate count : " << success << std::endl;
+        }
+    }
+}
 
 int main(int argc, char * argv[]) {
 
 
-    auto conn = odbctemplate::OdbcConnect::get_connection("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;");
+    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
+        .setAutocommit(true)
+        .setLoginTimeout(10)
+        .build();
 
 
     auto now = std::chrono::system_clock::now();
@@ -96,52 +120,9 @@ int main(int argc, char * argv[]) {
 
         auto next_time = start_time + std::chrono::seconds(10);
 
-        {
-            std::string query = "select count(*) from TBL_HIST_SMS";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-            std::cout << "TBL_HIST_SMS count : " << count << std::endl;
-            if(count > 1000){
-                conn.directExecute("TRUNCATE TABLE TBL_HIST_SMS")
-                    .fetch();
-            }
-        }
-
-        {
-            std::string query = "select count(*) from TBL_HIST_LMS";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-            std::cout << "TBL_HIST_LMS count : " << count << std::endl;
-            if(count > 1000){
-                conn.directExecute("TRUNCATE TABLE TBL_HIST_LMS")
-                    .fetch();
-            }
-        }
-
-
-
-        {
-            std::string query = "select count(*) from TBL_HIST_MMS";
-            auto count = conn.directExecute(query)
-                .fetchOne<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    int result;
-                    result = helper.getLong();
-                    return result;
-                });
-            std::cout << "TBL_HIST_MMS count : " << count << std::endl;
-            if(count > 1000){
-                conn.directExecute("TRUNCATE TABLE TBL_HIST_MMS")
-                    .fetch();
-            }
-        }
+        truncate(conn, "TBL_HIST_SMS");
+        truncate(conn, "TBL_HIST_LMS");
+        truncate(conn, "TBL_HIST_MMS");
 
         std::this_thread::sleep_until(next_time);
     }

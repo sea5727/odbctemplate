@@ -20,42 +20,79 @@ public:
 };
 
 int main(int, char**) {
-    auto conn = odbctemplate::OdbcConnect::get_connection("DSN=TST_DB;");
+    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+        .setAutocommit(true)
+        .build();
 
-    auto container2 = conn.execute()
-        .queryForObject("select 1;")
-        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-            int result;
-            result = helper.getLong();
-            return result;
-        });
-    
-    std::cout << "select 1 success\n";
-    for(auto & tuto : container2){
-        std::cout << tuto << std::endl;
+    {
+        auto result1= conn.allocStmt()
+            .directExecute("select 1;")
+            .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                int result;
+                result = helper.getLong();
+                return result;
+            });
+        
+        std::cout << "result1:" << result1.size() << std::endl;
+        for(auto & result : result1){
+            std::cout << result << std::endl;
+        }
     }
-    std::cout << "select 1 end\n";
 
 
-
-    auto container = conn.execute()
-        .queryForObject("select id, test, name from tuto where name=?;", "sangho")
-        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-            tuto result;
-            result.id = helper.getLong();
-            result.test = helper.getString();
-            result.name = helper.getString();
-            result.print();
-            return result;
-        });
-
-    std::cout << "select success\n";
-    for(auto & tuto : container){
-        tuto.print();
+    {
+        auto result2 = 
+            conn.preparedExecute("select id, test, name from tuto where name=?;", "sanghoasdfasdf")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+            });
+        std::cout << "result2 : " << std::endl;
+        for(auto & tuto : result2){
+            tuto.print();
+        }
     }
-    std::cout << "select end\n";
-
-
-
+    {
+        auto preparedStmt = conn.preparedStmt("select id, test, name from tuto where name=?;");
+        auto resultlist =  preparedStmt.bindExecute("sangho")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+            });
+        std::cout << "resultlist : " << std::endl;
+        for(auto & tuto : resultlist){
+            tuto.print();
+        }
+        auto resultlist2 =  preparedStmt.bindExecute("sangho2")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+            });
+        std::cout << "resultlist : " << std::endl;
+        for(auto & tuto : resultlist2){
+            tuto.print();
+        }
+        auto resultlist3 =  preparedStmt.bindExecute("sanghodasdas")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.test = helper.getString();
+                result.name = helper.getString();
+                return result;
+            });
+        std::cout << "resultlist : " << std::endl;
+        for(auto & tuto : resultlist3){
+            tuto.print();
+        }
+    }
 
 }

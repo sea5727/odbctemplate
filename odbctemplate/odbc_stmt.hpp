@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string.h>
+#include <sql.h>
+#include <sqlext.h>
 
 namespace odbctemplate
 {
@@ -11,30 +13,28 @@ namespace odbctemplate
         explicit OdbcStmt() = default;
         explicit OdbcStmt(SQLHSTMT stmt) 
             : stmt(stmt){
-            //std::cout << "OdbcStmt create..\n";
+            // std::cout << "OdbcStmt create..\n";
         }
         explicit OdbcStmt(const OdbcStmt & copy) 
-            : stmt(stmt){
-            //std::cout << "OdbcStmt copy create..\n";
+            : stmt(copy.stmt){
+            // std::cout << "OdbcStmt copy create..\n";
         }
         explicit OdbcStmt(OdbcStmt && move) 
-            : stmt(stmt){
-            stmt = move.stmt;
+            : stmt(move.stmt){
             move.stmt = SQL_NULL_HSTMT;
-            //std::cout << "OdbcStmt move create..\n";
+            // std::cout << "OdbcStmt move create..\n";
         }
         ~OdbcStmt(){
             if(stmt != SQL_NULL_HSTMT){
                 SQLRETURN status = SQLFreeStmt(stmt, SQL_DROP);
-                //std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
-            }
-                
+                // std::cout << __func__ << ": SQLFreeStmt stuatus : " << status << std::endl;
+            }                
         }
  
     public:
 
         // OdbcStmt
-        // preparedStmt(const std::string & query){
+        // prepareStmt(const std::string & query){
         //     SQLRETURN status = 0;
         //     status = SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
         //     if(status != SQL_SUCCESS){
