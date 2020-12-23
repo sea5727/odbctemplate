@@ -1,20 +1,8 @@
 # odbctemplate
 
-db library wrapped ODBC
+Easy library for C++ wrapping the ODBC client C library
 
-example 
-1.  SELECT
--  auto result = conn.preparedExecute("select id, test, name from tuto where name=?;", "searchname")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                tuto result;
-                result.id = helper.getLong();
-                result.test = helper.getString();
-                result.name = helper.getString();
-                return result;
-            });
-    for(auto & tuto : result2){
-        tuto.print();
-# Example : Connection 
+### Example : Connection 
 
 ```cpp
 #include <odbctemplate/odbctemplate.h>
@@ -27,7 +15,7 @@ auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
 ```
 
 
-# Example : SELECT 
+### Example : SELECT 
 
 ```cpp
 
@@ -54,7 +42,7 @@ for(auto & tuto : result){
 
 ```
 
-# Example : UPDATE / INSERT / DELETE 
+### Example : UPDATE / INSERT / DELETE 
 
 ```cpp
 
@@ -66,7 +54,7 @@ std::cout << succ << std::endl;
 ```
 
 
-# Example : REUSE QUERY
+### Example : REUSE QUERY
 
 ```cpp
 
