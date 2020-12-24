@@ -171,19 +171,19 @@ namespace odbctemplate
         explicit OdbcConnect(OdbcConnectProperties properties, std::shared_ptr<OdbcDbc> dbc) 
             : properties{properties}
             , dbc{dbc}{
-            std::cout << "OdbcConnect create\n";
+            // std::cout << "OdbcConnect create\n";
         }
         explicit OdbcConnect(SQLHDBC dbc) 
             : dbc{std::make_shared<OdbcDbc>(dbc)}{
-            std::cout << "OdbcConnect create\n";
+            // std::cout << "OdbcConnect create\n";
         }
         explicit OdbcConnect(std::shared_ptr<OdbcDbc> dbc) 
             : dbc{dbc}{
-            std::cout << "OdbcConnect shared_ptr create\n";
+            // std::cout << "OdbcConnect shared_ptr create\n";
         }
         OdbcConnect(const OdbcConnect & copy) 
             : dbc{copy.dbc}{
-            std::cout << "OdbcConnect create copy\n";
+            // std::cout << "OdbcConnect create copy\n";
         }
         OdbcConnect(OdbcConnect && copy) 
             : dbc{copy.dbc}{

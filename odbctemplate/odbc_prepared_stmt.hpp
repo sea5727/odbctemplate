@@ -146,11 +146,8 @@ namespace odbctemplate
         }
         template <typename Param1, typename... Params>
         void bindForParams(int index, const Param1 & param, const Params&... rest){
-            std::cout << "bindForParams bind start\n";
             bind(index, param);
-            std::cout << "bindForParams bindForParams start\n";
             bindForParams(++index, rest...);
-            std::cout << "bindForParams  end.. start\n";
             return;
         }
 

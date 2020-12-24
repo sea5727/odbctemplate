@@ -11,6 +11,8 @@ maria-db install : https://blog.sleeplessbeastie.eu/2018/01/08/how-to-install-an
 
 # ODBC ? 
 
+Open Database Connectivity : 어떤 데이터베이스라도 접근할 수 있게 만든 마이크로소픝트에서 만든 표준 방법.
+
 HENV : ODBC 버전 및 환경 HANDLE , HENV(1) : HDBC(N) 의 관계
 
 HDBC : DB 커넥션 HANDLE, HDBC(1) : HSTMT(N) 의 관계
@@ -30,6 +32,11 @@ SQLFetch : Select 문을 Excute/ExecDirect 후 결과값 (1 row) 을 수신 [ Bi
 SQLGetData : Select 문 결과를 하나씩 호출   
 SQLNumREsultCols : Select 결과의 Column 호출   
 SQLRowCount : Update/Insert/Delete 결과 Row 호출   
+
+# TODO LIST
+
+Simple Connection Pool 
+Simple BenchMark
    
 
 ### Example : Connection 
