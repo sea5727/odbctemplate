@@ -1,14 +1,6 @@
 #pragma once
 
-#include <string.h>
-
-#include "odbc_helper.hpp"
-#include "odbc_error.hpp"
-#include "odbc_fetcher.hpp"
-#include "odbc_stmt.hpp"
-#include "odbc_prepared_stmt.hpp"
-#include "odbc_fetcher.hpp"
-
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {
