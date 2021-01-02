@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <fstream>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
 
 
 
@@ -114,19 +114,17 @@ int main(int argc, char * argv[]) {
         auto start = std::chrono::system_clock::now();
         auto count = selectCount(conn, table);
         int sel_count = 0;
-        for(int i = 1 ; i <= count ; ++i){
-            auto result = conn.preparedExecute("select id, name, test, address from tuto where id = ? ", i)
-                .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                        tuto result;
-                        result.id = helper.getLong();
-                        result.name = helper.getString();
-                        result.test = helper.getString();
-                        result.address = helper.getString();
-                        return result;
-                });
+        auto result = conn.preparedExecute("select id, name, test, address from tuto")
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                tuto result;
+                result.id = helper.getLong();
+                result.name = helper.getString();
+                result.test = helper.getString();
+                result.address = helper.getString();
+                return result;
+            });
 
-            sel_count += result.size();
-        }
+        sel_count += result.size();
         std::cout << "count " << count << ", select count : " << sel_count << std::endl;
         auto end = std::chrono::system_clock::now();
         auto diff = end - start;

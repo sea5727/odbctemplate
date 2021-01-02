@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <fstream>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
 
 
 
@@ -70,16 +70,18 @@ insertN(
     return succ_count;
 }
 
+class tuto{
+public:
+    int id;
+    std::string name;
+    std::string test;
+    std::string address;
+};
+
 int main(int argc, char * argv[]) {
-    if(argc < 2){
-        std::cout << "param  maximum data  " << std::endl;
-        return 0;
-    }
 
     std::time_t rand = std::time(0);   // get time now
 
-
-    int limit = std::stoi(argv[1]);
     int interval_sec = 1;
     int insert_count = 1000;
 
@@ -96,24 +98,39 @@ int main(int argc, char * argv[]) {
     std::this_thread::sleep_until(next_time);
     
 
+    auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto where id = ? ");
     std::string table = "tuto";
+
     while(1){
         
         auto now = std::chrono::system_clock::now();
 
-        std::cout << "[START] ===== " << currentDateTime() << std::endl; 
         auto p = std::chrono::system_clock::time_point(now);
         auto start_time = std::chrono::time_point_cast<std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>::duration> (p);
 
         auto next_time = start_time + std::chrono::seconds(interval_sec);
 
-
+        auto start = std::chrono::system_clock::now();
         auto count = selectCount(conn, table);
-        std::cout << "count " << count << std::endl;
-        if(count < limit){
-            auto succ = insertN(conn, 100, "insert into tuto(name, test, address) VALUES ('sangho', 'testsample', 'addresssample')");
-            std::cout << "insert succ : " << succ << std::endl;
+        int sel_count = 0;
+        for(int i = 1 ; i <= count ; ++i){
+            
+            auto result = preparedStmt.bindExecute(i)
+            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+                    tuto result;
+                    result.id = helper.getLong();
+                    result.name = helper.getString();
+                    result.test = helper.getString();
+                    result.address = helper.getString();
+                    return result;
+            });
+
+            sel_count += result.size();
         }
+        std::cout << "count " << count << ", select count : " << sel_count << std::endl;
+        auto end = std::chrono::system_clock::now();
+        auto diff = end - start;
+        std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
         std::this_thread::sleep_until(next_time);
     }
 }

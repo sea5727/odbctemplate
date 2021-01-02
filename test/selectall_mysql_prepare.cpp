@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <fstream>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
 
 
 
@@ -80,7 +80,6 @@ public:
 
 int main(int argc, char * argv[]) {
 
-
     std::time_t rand = std::time(0);   // get time now
 
     int interval_sec = 1;
@@ -99,6 +98,7 @@ int main(int argc, char * argv[]) {
     std::this_thread::sleep_until(next_time);
     
 
+    auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto");
     std::string table = "tuto";
 
     while(1){
@@ -110,27 +110,24 @@ int main(int argc, char * argv[]) {
 
         auto next_time = start_time + std::chrono::seconds(interval_sec);
 
-
         auto start = std::chrono::system_clock::now();
         auto count = selectCount(conn, table);
         int sel_count = 0;
-        auto result = conn.preparedExecute("select id, name, test, address from tuto")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        auto result = preparedStmt.Execute()
+        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.name = helper.getString();
                 result.test = helper.getString();
                 result.address = helper.getString();
                 return result;
-            });
+        });
 
         sel_count += result.size();
         std::cout << "count " << count << ", select count : " << sel_count << std::endl;
         auto end = std::chrono::system_clock::now();
         auto diff = end - start;
         std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-
-
         std::this_thread::sleep_until(next_time);
     }
 }

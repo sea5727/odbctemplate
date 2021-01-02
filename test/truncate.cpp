@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <fstream>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
 
 
 

@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <fstream>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
 
 
 
@@ -80,6 +80,7 @@ public:
 
 int main(int argc, char * argv[]) {
 
+
     std::time_t rand = std::time(0);   // get time now
 
     int interval_sec = 1;
@@ -98,7 +99,6 @@ int main(int argc, char * argv[]) {
     std::this_thread::sleep_until(next_time);
     
 
-    auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto where id = ? ");
     std::string table = "tuto";
 
     while(1){
@@ -110,27 +110,27 @@ int main(int argc, char * argv[]) {
 
         auto next_time = start_time + std::chrono::seconds(interval_sec);
 
+
         auto start = std::chrono::system_clock::now();
         auto count = selectCount(conn, table);
         int sel_count = 0;
-        for(int i = 1 ; i <= count ; ++i){
-            
-            auto result = preparedStmt.bindExecute(i)
+        auto result = conn.directExecute("select id, name, test, address from tuto")
             .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
-                    tuto result;
-                    result.id = helper.getLong();
-                    result.name = helper.getString();
-                    result.test = helper.getString();
-                    result.address = helper.getString();
-                    return result;
+                tuto result;
+                result.id = helper.getLong();
+                result.name = helper.getString();
+                result.test = helper.getString();
+                result.address = helper.getString();
+                return result;
             });
 
-            sel_count += result.size();
-        }
+        sel_count += result.size();
         std::cout << "count " << count << ", select count : " << sel_count << std::endl;
         auto end = std::chrono::system_clock::now();
         auto diff = end - start;
         std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+
+
         std::this_thread::sleep_until(next_time);
     }
 }

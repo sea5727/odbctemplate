@@ -5,7 +5,8 @@
 #include <sqlext.h>
 #include <typeinfo>
 
-#include "odbctemplate/odbctemplate.hpp"
+#include "odbctemplate.hpp"
+
 class Base{
 public:
     Base(){
