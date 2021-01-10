@@ -18,7 +18,7 @@ namespace odbctemplate
             : stmt{stmt} {
             //std::cout << "OdbcResetedStmt create..\n";
         }
-        explicit OdbcResetedStmt(const OdbcResetedStmt & copy)
+        OdbcResetedStmt(const OdbcResetedStmt & copy)
             : stmt{copy.stmt} {
             //std::cout << "OdbcResetedStmt copy create..\n";
         }
