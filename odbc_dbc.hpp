@@ -31,9 +31,7 @@ namespace odbctemplate
             if(dbc != SQL_NULL_HDBC){
                 SQLRETURN status;
                 status = SQLDisconnect(dbc);
-                std::cout << __func__ << ": SQLDisconnect SQLHDBC stuatus : " << status << std::endl;
                 status = SQLFreeConnect(dbc);
-                std::cout << __func__ << ": SQLFreeConnect SQLHDBC stuatus : " << status << std::endl;
                 dbc = SQL_NULL_HDBC;
             }                
         }
