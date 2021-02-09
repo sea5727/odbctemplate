@@ -1,18 +1,6 @@
 #pragma once
 
 
-#include <utility>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <functional>
-#include <sql.h>
-#include <sqlext.h>
-#include <iostream>
-#include <memory>
-#include <thread>
-#include <chrono>
-#include <mutex>
 
 #include "odbc_stmt.hpp"
 

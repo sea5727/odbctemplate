@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string.h>
-#include <sql.h>
-#include <sqlext.h>
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {

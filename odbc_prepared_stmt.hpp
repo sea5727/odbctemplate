@@ -1,17 +1,10 @@
 #pragma once
 
-#include <string.h>
-#include <functional>
-
-#include "odbc_helper.hpp"
-#include "odbc_error.hpp"
-#include "odbc_fetcher.hpp"
-#include "odbc_stmt.hpp"
-#include "odbc_bindcol_stmt.hpp"
-
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {
+
     class OdbcpreparedStmt{
     private:
         std::shared_ptr<OdbcStmt> stmt;
@@ -38,44 +31,11 @@ namespace odbctemplate
         }
  
     public:
-        class BindColHelper{
-        public:
-            friend class OdbcpreparedStmt;
-            int             index = 1;
-            SQLHSTMT        stmt  = SQL_NULL_HSTMT;
-        private:
-            BindColHelper() = default;
-            BindColHelper(SQLHSTMT stmt) 
-                : stmt(stmt) {
-            }
-        public:
-            void
-            setBindColLong(long * buffer){
-                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, buffer, 0, NULL);
-                if( status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-            }
-            void
-            setBindColShort(long * buffer){
-                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, buffer, 0, NULL);
-                if( status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-            }
-            void
-            setBindColString(char * buffer, size_t buffer_size){
-                SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer, buffer_size, NULL);
-                 if( status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-            }
-            
-        };
+
 
         
         OdbcpreparedStmt
-        bindCol(std::function<void(BindColHelper)> help){
+        bindCol(std::function<void(BindColHelper & )> help){
             BindColHelper helper{stmt->stmt};
             help(helper);
             return *this;

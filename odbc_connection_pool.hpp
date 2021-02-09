@@ -1,14 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <atomic>
 
-#include "odbc_manager.hpp"
-#include "odbc_helper.hpp"
-#include "odbc_error.hpp"
-
-#include "odbc_connect.hpp"
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {

@@ -1,18 +1,9 @@
 #pragma once
 
-#include "odbc_dbc.hpp"
-#include "odbc_helper.hpp"
-#include "odbc_error.hpp"
-#include "odbc_stmt.hpp"
-#include "odbc_prepared_stmt.hpp"
-#include "odbc_manager.hpp"
-#include "odbc_fetcher.hpp"
-#include "odbc_reseted_stmt.hpp"
-
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {
-    
     class OdbcConnect{
     private:
         class OdbcConnectProperties{
@@ -183,7 +174,7 @@ namespace odbctemplate
         }
         OdbcConnect(const OdbcConnect & copy) 
             : dbc{copy.dbc}{
-            // std::cout << "OdbcConnect create copy\n";
+            std::cout << "OdbcConnect create copy\n";
         }
         OdbcConnect(OdbcConnect && copy) 
             : dbc{copy.dbc}{

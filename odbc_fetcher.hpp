@@ -1,13 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <iostream>
-#include <functional>
-#include <sql.h>
-#include <sqlext.h>
-
-#include "odbc_stmt.hpp"
+#include "odbctemplate.hpp"
 
 namespace odbctemplate
 {
@@ -29,7 +22,7 @@ namespace odbctemplate
             : stmt{stmt} {
             ////std::cout << "OdbcFetcher create..\n";
         }
-        explicit OdbcFetcher(const OdbcFetcher & copy) 
+        OdbcFetcher(const OdbcFetcher & copy) 
             : stmt{copy.stmt}{
             ////std::cout << "OdbcFetcher copy create\n";
         }
@@ -41,67 +34,7 @@ namespace odbctemplate
             ////std::cout << "delete OdbcFetcher\n";
         }
 
-        class FetchHelper{
-            const int       MAX_DATA_SIZE = 1024;
-            SQLHSTMT        stmt  = SQL_NULL_HSTMT;
-            int             index = 1;
-        public:
-            FetchHelper() = default;
-            FetchHelper(SQLHSTMT stmt) 
-                : stmt(stmt) {
-            }
-
-            std::string 
-            getString(){
-                char buffer[MAX_DATA_SIZE] = "";
-                SQLRETURN status;
-                SQLLEN len = 0;
-                status = SQLGetData (stmt, 
-                                    index++, 
-                                    SQL_C_CHAR, 
-                                    buffer, 
-                                    sizeof(buffer), 
-                                    (SQLLEN *)&len);
-                if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-                return buffer;
-            }
-            long 
-            getLong(){
-                long buffer = 0;
-                SQLRETURN status;
-                SQLLEN len = 0;
-                
-                status = SQLGetData (stmt, 
-                                    index++, 
-                                    SQL_C_SLONG, 
-                                    &buffer, 
-                                    sizeof(buffer), 
-                                    (SQLLEN *)&len);
-                if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-                return buffer;
-            }
-            short 
-            getShort(){
-                short buffer = 0;
-                SQLRETURN status;
-                SQLLEN len = 0;
-                
-                status = SQLGetData (stmt, 
-                                    index++, 
-                                    SQL_C_SSHORT, 
-                                    &buffer, 
-                                    sizeof(buffer), 
-                                    (SQLLEN *)&len);
-                if(status != SQL_SUCCESS){
-                    odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
-                }
-                return buffer;
-            }
-        };
+ 
 
         unsigned short int
         getNumResultCols(){
@@ -128,6 +61,10 @@ namespace odbctemplate
             status = SQLFetch(stmt->stmt);
 
             if(status == SQL_SUCCESS) return true;
+            if(status == SQL_NULL_DATA){
+                odbctemplate::OdbcError::Throw("SQL_NULL_DATA should bind nullable"); 
+            }
+            
             // SQL_NO_DATA / SQL_ERROR etc..
             status = SQLFreeStmt(stmt->stmt, SQL_CLOSE);
             return false;
@@ -136,7 +73,7 @@ namespace odbctemplate
 
         template<typename Return_Ty>
         std::vector<Return_Ty>
-        fetch(std::function<Return_Ty(FetchHelper)> help) {
+        fetch(std::function<Return_Ty(FetchHelper )> help) {
             if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
             }
