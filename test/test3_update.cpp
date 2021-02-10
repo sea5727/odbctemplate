@@ -21,9 +21,9 @@ public:
 
 int main(int, char**) {
         
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
-        .setConnectTimeout(10)
         .setLoginTimeout(10)
         .build();
     // auto conn = odbctemplate::OdbcConnect::get_connection("DSN=TST_DB;");

@@ -20,14 +20,15 @@ public:
 };
 
 int main(int, char**) {
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .build();
 
     {
         auto result1= conn.allocStmt()
             .directExecute("select 1;")
-            .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<int>([](odbctemplate::FetchHelper helper){
                 int result;
                 result = helper.getLong();
                 return result;
@@ -43,7 +44,7 @@ int main(int, char**) {
     {
         auto result2 = 
             conn.preparedExecute("select id, test, name from tuto where name=?;", "sanghoasdfasdf")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();
@@ -58,7 +59,7 @@ int main(int, char**) {
     {
         auto preparedStmt = conn.preparedStmt("select id, test, name from tuto where name=?;");
         auto resultlist =  preparedStmt.bindExecute("sangho")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();
@@ -70,7 +71,7 @@ int main(int, char**) {
             tuto.print();
         }
         auto resultlist2 =  preparedStmt.bindExecute("sangho2")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();
@@ -82,7 +83,7 @@ int main(int, char**) {
             tuto.print();
         }
         auto resultlist3 =  preparedStmt.bindExecute("sanghodasdas")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();

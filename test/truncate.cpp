@@ -78,7 +78,7 @@ truncate(
     std::string select_query = "select count(*) from " + table;
     std::string truncate_query = "TRUNCATE TABLE " + table;
     auto count = conn.directExecute(select_query)
-        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        .fetch<int>([](odbctemplate::FetchHelper helper){
             int result;
             result = helper.getLong();
             return result;
@@ -96,7 +96,8 @@ truncate(
 int main(int argc, char * argv[]) {
 
 
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();

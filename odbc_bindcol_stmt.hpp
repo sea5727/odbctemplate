@@ -13,24 +13,14 @@ namespace odbctemplate
     public:
         explicit OdbcBindedColStmt() = default;
         explicit OdbcBindedColStmt(SQLHSTMT stmt) 
-            : stmt{std::make_shared<OdbcStmt>(stmt)}{
-            std::cout << "OdbcBindedColStmt default create..\n";
-        }
+            : stmt{std::make_shared<OdbcStmt>(stmt)}{ }
         explicit OdbcBindedColStmt(std::shared_ptr<OdbcStmt> stmt) 
-            : stmt{stmt} {
-            std::cout << "OdbcBindedColStmt shared create..\n";
-        }
+            : stmt{stmt} { }
         OdbcBindedColStmt(const OdbcBindedColStmt & copy) 
-            : stmt{copy.stmt}{
-            std::cout << "OdbcBindedColStmt copy create..\n";
-        }
+            : stmt{copy.stmt}{ }
         explicit OdbcBindedColStmt(OdbcBindedColStmt && move) 
-            : stmt{std::move(move.stmt)}{
-            std::cout << "OdbcBindedColStmt move create..\n";
-        }
-        ~OdbcBindedColStmt(){
-            std::cout << "OdbcBindedColStmt delete..\n";
-        }
+            : stmt{std::move(move.stmt)}{ }
+        ~OdbcBindedColStmt(){ }
 
 
     };

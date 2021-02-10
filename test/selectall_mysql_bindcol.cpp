@@ -29,7 +29,7 @@ selectCount(
 
     std::string query = "select count(*) from " + table;
     auto result = conn.directExecute(query)
-        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        .fetch<int>([](odbctemplate::FetchHelper helper){
             int result;
             result = helper.getLong();
             return result;
@@ -93,7 +93,8 @@ int main(int argc, char * argv[]) {
     int insert_count = 1000;
 
 
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()  
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();
@@ -108,11 +109,11 @@ int main(int argc, char * argv[]) {
     
     auto preparedStmt = conn
             .preparedStmt("select id, name, test, address from tuto")
-            .bindCol([&](odbctemplate::OdbcpreparedStmt::BindColHelper helper){
-                helper.setBindColLong(&result.id);
-                helper.setBindColString(result.name, sizeof(result.name));
-                helper.setBindColString(result.test, sizeof(result.test));
-                helper.setBindColString(result.address, sizeof(result.address));
+            .bindCol([&](odbctemplate::BindColHelper helper){
+                helper.setBindColLongNotNull(&result.id);
+                helper.setBindColStringNotNull(result.name, sizeof(result.name));
+                helper.setBindColStringNotNull(result.test, sizeof(result.test));
+                helper.setBindColStringNotNull(result.address, sizeof(result.address));
             });
     std::string table = "tuto";
 

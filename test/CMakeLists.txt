@@ -1,5 +1,3 @@
-
-
 add_executable(test3_2_insert test3_2_insert.cpp)
 add_executable(selectall_mysql_bindcol.EXE selectall_mysql_bindcol.cpp)
 add_executable(selectall_mysql_direct.EXE selectall_mysql_direct.cpp)
@@ -8,7 +6,6 @@ add_executable(select_mysql_prepare.EXE select_mysql_prepare.cpp)
 add_executable(selectall_mysql_noprepare.EXE selectall_mysql_noprepare.cpp)
 add_executable(selectall_mysql_prepare.EXE selectall_mysql_prepare.cpp)
 add_executable(INSERTER2.EXE insert_mysql.cpp)
-
 add_executable(main2 main2.cpp)
 add_executable(mysql0 test0_one_call.cpp)
 add_executable(mysql1 test0_multi_call.cpp)
@@ -20,5 +17,5 @@ add_executable(test3 test3_update.cpp)
 add_executable(test4 test4_connection.cpp)
 add_executable(test5 test5_bindcol.cpp)
 add_executable(test6 test6_connection_pool.cpp)
-add_executable(functionchaintest functionchaintest.cpp)
+add_executable(OdbcConnectBuilder-test OdbcConnectBuilder-test.cpp)
 

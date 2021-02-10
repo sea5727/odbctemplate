@@ -29,8 +29,10 @@
 #include "odbc_prepared_stmt.hpp"
 #include "odbc_reseted_stmt.hpp"
 #include "odbc_bindcol_stmt.hpp"
+
 #include "odbc_connect.hpp"
 #include "odbc_connection_pool.hpp"
+#include "odbc_connect_builder.hpp"
 
 namespace odbctemplate
 {

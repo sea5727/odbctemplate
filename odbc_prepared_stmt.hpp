@@ -11,24 +11,10 @@ namespace odbctemplate
     public:
         explicit OdbcpreparedStmt() = default;
         explicit OdbcpreparedStmt(SQLHSTMT stmt) 
-            : stmt{std::make_shared<OdbcStmt>(stmt)}{
-            // std::cout << "OdbcpreparedStmt default create..\n";
-        }
+            : stmt{std::make_shared<OdbcStmt>(stmt)}{ }
         explicit OdbcpreparedStmt(std::shared_ptr<OdbcStmt> stmt) 
-            : stmt{stmt} {
-            // std::cout << "OdbcpreparedStmt shared create..\n";
-        }
-        OdbcpreparedStmt(const OdbcpreparedStmt & copy) 
-            : stmt{copy.stmt}{
-            // std::cout << "OdbcpreparedStmt copy create..\n";
-        }
-        explicit OdbcpreparedStmt(OdbcpreparedStmt && move) 
-            : stmt{std::move(move.stmt)}{
-            // std::cout << "OdbcpreparedStmt move create..\n";
-        }
-        ~OdbcpreparedStmt(){
-            // std::cout << "OdbcpreparedStmt delete..\n";
-        }
+            : stmt{stmt} { }
+        ~OdbcpreparedStmt(){ }
  
     public:
 
@@ -44,7 +30,6 @@ namespace odbctemplate
         template <typename Param1, typename... Params>
         OdbcFetcher 
         bindExecute(const Param1 & p1, const Params&... rest){
-            //std::cout << "======== " << __func__ << " start ============" << std::endl;
             bindForParams(1, p1, rest...);
             SQLRETURN status = SQLExecute(stmt->stmt);  
             if( status != SQL_SUCCESS){
@@ -55,7 +40,6 @@ namespace odbctemplate
 
         OdbcFetcher 
         Execute(){
-            //std::cout << "======== " << __func__ << " start ============" << std::endl;
             SQLRETURN status = SQLExecute(stmt->stmt);  
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);

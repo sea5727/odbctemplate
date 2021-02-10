@@ -21,27 +21,28 @@ public:
 
 int main(int, char**) {
         
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(false)
         .setLoginTimeout(100)
         .build();
 
-    auto prev_autocommit = odbctemplate::OdbcConnect::OdbcConnectBuilder(conn)
+    auto prev_autocommit = odbctemplate::OdbcConnectBuilder(conn)
         .getAutocommit();
 
     std::cout << "prev autocommit : " << prev_autocommit << std::endl;
 
-    odbctemplate::OdbcConnect::OdbcConnectBuilder(conn)
+    odbctemplate::OdbcConnectBuilder(conn)
         .setAutocommit(true);
 
-    auto after_autocommit = odbctemplate::OdbcConnect::OdbcConnectBuilder(conn)
+    auto after_autocommit = odbctemplate::OdbcConnectBuilder(conn)
         .getAutocommit();
     std::cout << "current after_autocommit : " << after_autocommit << std::endl;
-    auto dead = odbctemplate::OdbcConnect::OdbcConnectBuilder(conn)
+    auto dead = odbctemplate::OdbcConnectBuilder(conn)
         .getConnectionDead();
     std::cout << "current dead : " << dead << std::endl;
     
-    auto reconn = odbctemplate::OdbcConnect::OdbcConnectBuilder(conn)
+    auto reconn = odbctemplate::OdbcConnectBuilder(conn)
         .build();
     // std::cout << "current loginTimeout2 : " << loginTimeout2 << std::endl;
 

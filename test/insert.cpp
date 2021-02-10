@@ -79,7 +79,7 @@ selectCount(
 
     std::string query = "select count(*) from " + table;
     auto result = conn.directExecute(query)
-        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        .fetch<int>([](odbctemplate::FetchHelper helper){
             int result;
             result = helper.getLong();
             return result;
@@ -139,7 +139,8 @@ int main(int argc, char * argv[]) {
 
     printf("fileid_key:%lu\n", fileid_key);
 
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=RCS_DSN_NEW;UID=rcs;PWD=rcs.123;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();

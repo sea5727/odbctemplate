@@ -10,21 +10,14 @@ namespace odbctemplate
 
         explicit OdbcDbc() = default;
         explicit OdbcDbc(SQLHDBC dbc) 
-            : dbc(dbc){
-            // std::cout << "OdbcDbc create..\n";
-        }
+            : dbc(dbc){}
         explicit OdbcDbc(const OdbcDbc & copy) 
-            : dbc(dbc){
-            // std::cout << "OdbcStmt copy create..\n";
-        }
+            : dbc(copy.dbc){}
         explicit OdbcDbc(OdbcDbc && move) 
-            : dbc(dbc){
-            dbc = move.dbc;
+            : dbc(move.dbc){
             move.dbc = SQL_NULL_HDBC;
-            // std::cout << "OdbcStmt move create..\n";
         }
         ~OdbcDbc(){
-            // std::cout << "~OdbcDbc\n";
             if(dbc != SQL_NULL_HDBC){
                 SQLRETURN status;
                 status = SQLDisconnect(dbc);

@@ -29,7 +29,7 @@ selectCount(
 
     std::string query = "select count(*) from " + table;
     auto result = conn.directExecute(query)
-        .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        .fetch<int>([](odbctemplate::FetchHelper helper){
             int result;
             result = helper.getLong();
             return result;
@@ -83,8 +83,8 @@ int main(int argc, char * argv[]) {
     int interval_sec = 1;
     int insert_count = 1000;
 
-
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();

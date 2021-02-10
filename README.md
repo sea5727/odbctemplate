@@ -44,7 +44,8 @@ Simple BenchMark
 ```cpp
 #include <odbctemplate/odbctemplate.h>
 
-auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+auto conn = odbctemplate::OdbcConnectBuilder()
+    .setDsn("DSN=TST_DB;")
     .setAutocommit(false)
     .setLoginTimeout(100)
     .build();
@@ -66,7 +67,7 @@ public:
 
 auto result = 
     conn.preparedExecute("select id, test, name from tuto where name=?;", "searchname")
-    .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    .fetch<tuto>([](odbctemplate::FetchHelper helper){
         tuto result;
         result.id = helper.getLong();
         result.test = helper.getString();
@@ -101,7 +102,7 @@ int i = 0;
 
 while(1){
     auto result =  preparedStmt.bindExecute(i) //  Execute with parameter binding
-        .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        .fetch<tuto>([](odbctemplate::FetchHelper helper){
             tuto result;
             result.id = helper.getLong();
             result.test = helper.getString();
@@ -139,7 +140,7 @@ public:
 tuto2 result;
 
 auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto")
-    .bindCol([&](odbctemplate::OdbcpreparedStmt::BindColHelper helper){
+    .bindCol([&](odbctemplate::BindColHelper helper){
         helper.setBindColLong(&result.id);
         helper.setBindColString(result.name, sizeof(result.name));
         helper.setBindColString(result.test, sizeof(result.test));

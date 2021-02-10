@@ -37,7 +37,8 @@ public:
 
 int main(int, char**) {
         
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();
@@ -46,11 +47,11 @@ int main(int, char**) {
 
     char buffer[1024] = "";
     auto fetcher = conn.preparedStmt("select id, name, test, address from tuto")
-        .bindCol([&](odbctemplate::OdbcpreparedStmt::BindColHelper helper){
-            helper.setBindColLong(&result.id);
-            helper.setBindColString(result.name, sizeof(result.name));
-            helper.setBindColString(result.test, sizeof(result.test));
-            helper.setBindColString(result.address, sizeof(result.address));
+        .bindCol([&](odbctemplate::BindColHelper helper){
+            helper.setBindColLongNotNull(&result.id);
+            helper.setBindColStringNotNull(result.name, sizeof(result.name));
+            helper.setBindColStringNotNull(result.test, sizeof(result.test));
+            helper.setBindColStringNotNull(result.address, sizeof(result.address));
         }).Execute();
     
     while(fetcher.fetch()){

@@ -21,13 +21,14 @@ public:
 
 int main(int, char**) {
 
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();
 
     auto result1 = conn.directExecute("select id, test, name from tuto;")
-            .fetch<tuto>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+            .fetch<tuto>([](odbctemplate::FetchHelper helper){
                 tuto result;
                 result.id = helper.getLong();
                 result.test = helper.getString();

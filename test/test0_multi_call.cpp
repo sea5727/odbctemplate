@@ -21,7 +21,8 @@ public:
 
 int main(int, char**) {
 
-    auto conn = odbctemplate::OdbcConnect::OdbcConnectBuilder("DSN=TST_DB;")
+    auto conn = odbctemplate::OdbcConnectBuilder()
+        .setDsn("DSN=TST_DB;")
         .setAutocommit(true)
         .setLoginTimeout(10)
         .build();
@@ -30,7 +31,7 @@ int main(int, char**) {
         auto stmt = conn.allocStmt();
         auto prepareStmt = stmt.preparedStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
         auto fetcher = prepareStmt.bindExecute(1);
-        auto result = fetcher.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        auto result = fetcher.fetch<int>([](odbctemplate::FetchHelper helper){
                 int result;
                 result = helper.getLong();
                 return result;
@@ -43,7 +44,7 @@ int main(int, char**) {
 
         auto prepareStmt2 = stmt.preparedStmt("select ? from TBL_SEND_FILE;"); // ! 저장 필요;
         auto fetcher2 = prepareStmt.bindExecute(10);
-        auto result2 = fetcher2.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        auto result2 = fetcher2.fetch<int>([](odbctemplate::FetchHelper helper){
                 int result;
                 result = helper.getLong();
                 return result;
@@ -51,18 +52,18 @@ int main(int, char**) {
 
         // auto fetcher4 = prepareStmt.bindExecute(3);
 
-        // auto result2 = fetcher2.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        // auto result2 = fetcher2.fetch<int>([](odbctemplate::FetchHelper helper){
         //         int result;
         //         result = helper.getLong();
         //         return result;
         //     });
-        // auto result3 = fetcher3.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        // auto result3 = fetcher3.fetch<int>([](odbctemplate::FetchHelper helper){
         //         int result;
         //         result = helper.getLong();
         //         return result;
         //     });
 
-        // auto result4 = fetcher4.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+        // auto result4 = fetcher4.fetch<int>([](odbctemplate::FetchHelper helper){
         //         int result;
         //         result = helper.getLong();
         //         return result;
@@ -79,7 +80,7 @@ int main(int, char**) {
     // {
     //     auto prepareStmt = conn.prepareStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
     //     auto fetcher = prepareStmt.bindExecute(1);
-    //     auto result = fetcher.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    //     auto result = fetcher.fetch<int>([](odbctemplate::FetchHelper helper){
     //             int result;
     //             result = helper.getLong();
     //             return result;
@@ -94,7 +95,7 @@ int main(int, char**) {
     // }
     // {
     //     auto fetcher = conn.preparedExecute("select ? from TBL_SEND_SMS;", 1);
-    //     auto result = fetcher.fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    //     auto result = fetcher.fetch<int>([](odbctemplate::FetchHelper helper){
     //             int result;
     //             result = helper.getLong();
     //             return result;
@@ -108,7 +109,7 @@ int main(int, char**) {
 
     // {
     //     auto result = conn.preparedExecute("select ? from TBL_SEND_SMS;", 1)
-    //         .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    //         .fetch<int>([](odbctemplate::FetchHelper helper){
     //             int result;
     //             result = helper.getLong();
     //             return result;
@@ -119,7 +120,7 @@ int main(int, char**) {
 
     // {
     //     auto result = conn.preparedExecute("select 1 from TBL_SEND_SMS;")
-    //         .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    //         .fetch<int>([](odbctemplate::FetchHelper helper){
     //             int result;
     //             result = helper.getLong();
     //             return result;
@@ -131,7 +132,7 @@ int main(int, char**) {
 
     // {
     //     auto result = conn.directExecute("select 1 from TBL_SEND_SMS;")
-    //             .fetch<int>([](odbctemplate::OdbcFetcher::FetchHelper helper){
+    //             .fetch<int>([](odbctemplate::FetchHelper helper){
     //         int result;
     //         result = helper.getLong();
     //         return result;
