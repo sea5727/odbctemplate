@@ -17,11 +17,15 @@ namespace odbctemplate
         ~OdbcpreparedStmt(){ }
  
     public:
-
-
-        
+        /**
+         * @brief fetch 데이터를 결과 데이터에 bind해주는 helper용 함수.
+         * 사용자는 help 함수에 binding 해주는 함수를 작성해야한다.
+         * 
+         * @param help 
+         * @return OdbcpreparedStmt 
+         */
         OdbcpreparedStmt
-        bindCol(std::function<void(BindColHelper & )> help){
+        bindResultCol(std::function<void(BindColHelper & )> help){
             BindColHelper helper{stmt->stmt};
             help(helper);
             return *this;
@@ -29,7 +33,7 @@ namespace odbctemplate
 
         template <typename Param1, typename... Params>
         OdbcFetcher 
-        bindExecute(const Param1 & p1, const Params&... rest){
+        bindExecute(const Param1 p1, const Params... rest){
             bindForParams(1, p1, rest...);
             SQLRETURN status = SQLExecute(stmt->stmt);  
             if( status != SQL_SUCCESS){
@@ -49,7 +53,21 @@ namespace odbctemplate
 
     
     private:
-        void bind(const int index, const odbcString & param) {
+        class templateString{
+        public:
+            templateString(){
+            }
+            templateString(const char * v)
+                : string(v)
+                , length(strlen(v)){
+            }
+            const char *string;
+            int length;
+
+        };
+
+
+        void bind(const int index, const templateString & param) {
             SQLRETURN status = 1;
             status = SQLBindParameter( stmt->stmt,
                                     index,
@@ -66,7 +84,6 @@ namespace odbctemplate
             }
         }
         void bind(const int index, const int & param) {
-            //std::cout << "bind ! index :" << index << ", param : " << param << std::endl;
             SQLRETURN status = 1;
 
             status = SQLBindParameter( stmt->stmt,

@@ -37,7 +37,7 @@ SQLRowCount : Update/Insert/Delete 결과 Row 호출
 
 Simple Connection Pool 
 Simple BenchMark
-   
+
 
 ### Example : Connection 
 
@@ -140,7 +140,7 @@ public:
 tuto2 result;
 
 auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto")
-    .bindCol([&](odbctemplate::BindColHelper helper){
+    .bindResultCol([&](odbctemplate::BindColHelper helper){
         helper.setBindColLong(&result.id);
         helper.setBindColString(result.name, sizeof(result.name));
         helper.setBindColString(result.test, sizeof(result.test));

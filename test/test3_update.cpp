@@ -34,8 +34,7 @@ int main(int, char**) {
         std::cout << succ << std::endl;
     }
     {
-        auto stmt = conn.allocStmt();
-        auto preparedStmt = stmt.preparedStmt("update tuto set test=?");
+        auto preparedStmt = conn.preparedStmt("update tuto set test=?");
         auto result1 = preparedStmt.bindExecute("a").getRowCount();
         std::cout << result1 << std::endl;
         auto result2 = preparedStmt.bindExecute("baa").getRowCount();
@@ -44,10 +43,8 @@ int main(int, char**) {
         std::cout << result3 << std::endl;
     }
   
-  {
-        auto stmt = conn.allocStmt();
-        
-        auto preparedStmt = stmt.preparedStmt("update tuto set test=?");
+    {
+        auto preparedStmt = conn.preparedStmt("update tuto set test=?");
         auto result1 = preparedStmt.bindExecute("a").getRowCount();
         std::cout << result1 << std::endl;
         auto result2 = conn.directExecute("update tuto set test='123123'").getRowCount();

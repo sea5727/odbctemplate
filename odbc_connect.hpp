@@ -7,11 +7,21 @@ namespace odbctemplate
     class OdbcConnectBuilder;
     class OdbcConnect{
         friend class OdbcConnectBuilder;
+        friend class OdbcConnectCtl;
     private:
         std::shared_ptr<OdbcDbc> dbc;
     public:
         explicit OdbcConnect() = default;
         static OdbcConnectBuilder builder();
+    
+    private:
+
+        /**
+         * @brief BASE STMT 핸들러 
+         * SQLAllocHandle 를 호출
+         * 
+         * @return OdbcResetedStmt 
+         */
         OdbcResetedStmt 
         allocStmt() {
             SQLRETURN status = 0;
@@ -25,27 +35,55 @@ namespace odbctemplate
             return OdbcResetedStmt(stmt);
         }
 
+    public:
+        /**
+         * @brief preparedStmt 핸들러를 얻는다.
+         * 
+         * @param query 
+         * @return OdbcpreparedStmt 
+         */
         OdbcpreparedStmt
         preparedStmt(const std::string & query){
             return allocStmt().preparedStmt(query);
         }
-        
-    
-        OdbcFetcher 
-        directExecute(const std::string & query){
-            return allocStmt().directExecute(query);
-        }
 
+        /**
+         * @brief preparedStmt 핸들러로 직접 쿼리를 한다. ( bind 불가 )
+         * 
+         * @param query 
+         * @return OdbcpreparedStmt 
+         */
         OdbcFetcher 
         preparedExecute(const std::string & query){
-            return preparedStmt(query).Execute();
+            return allocStmt().preparedStmt(query).Execute();
         }
 
 
+        /**
+         * @brief prepared 핸들러로 직접 쿼리를 한다. ( bind 가능 )
+         * 
+         * @tparam Param1 
+         * @tparam Params 
+         * @param query 
+         * @param p1 first bind variable
+         * @param rest others bind variables
+         * @return OdbcFetcher 
+         */
         template <typename Param1, typename... Params>
         OdbcFetcher 
         preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
-            return preparedStmt(query).bindExecute(p1, rest...);
+            return allocStmt().preparedStmt(query).bindExecute(p1, rest...);
+        }
+
+        /**
+         * @brief 직접 쿼리를 한다. ( bind 불가 )
+         * 
+         * @param query 
+         * @return OdbcFetcher 
+         */
+        OdbcFetcher 
+        directExecute(const std::string & query){
+            return allocStmt().directExecute(query);
         }
 
         void

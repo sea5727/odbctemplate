@@ -26,8 +26,7 @@ int main(int, char**) {
         .build();
 
     {
-        auto result1= conn.allocStmt()
-            .directExecute("select 1;")
+        auto result1= conn.directExecute("select 1;")
             .fetch<int>([](odbctemplate::FetchHelper helper){
                 int result;
                 result = helper.getLong();

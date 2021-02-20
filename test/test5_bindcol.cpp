@@ -47,11 +47,11 @@ int main(int, char**) {
 
     char buffer[1024] = "";
     auto fetcher = conn.preparedStmt("select id, name, test, address from tuto")
-        .bindCol([&](odbctemplate::BindColHelper helper){
-            helper.setBindColLongNotNull(&result.id);
-            helper.setBindColStringNotNull(result.name, sizeof(result.name));
-            helper.setBindColStringNotNull(result.test, sizeof(result.test));
-            helper.setBindColStringNotNull(result.address, sizeof(result.address));
+        .bindResultCol([&](odbctemplate::BindColHelper helper){
+            // helper.setBindColLongNotNull(&result.id);
+            // helper.setBindColStringNotNull(result.name, sizeof(result.name));
+            // helper.setBindColStringNotNull(result.test, sizeof(result.test));
+            // helper.setBindColStringNotNull(result.address, sizeof(result.address));
         }).Execute();
     
     while(fetcher.fetch()){

@@ -27,8 +27,7 @@ int main(int, char**) {
         .build();
 
     // {
-    //     auto stmt = conn.allocStmt();
-    //     auto prepareStmt = stmt.prepareStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
+    //     auto prepareStmt = conn.prepareStmt("select ? from TBL_SEND_SMS;"); // ! 저장 필요
     //     auto fetcher = prepareStmt.bindExecute(1);
     //     auto result = fetcher.fetch<int>([](odbctemplate::FetchHelper helper){
     //             int result;
@@ -36,10 +35,6 @@ int main(int, char**) {
     //             return result;
     //         });
 
-
-    //     stmt.print_mystmt();
-    //     prepareStmt.print_mystmt();
-    //     fetcher.print_mystmt();
     
     //     std::cout << "r:" << result.at(0) << std::endl;
     // }
@@ -53,9 +48,6 @@ int main(int, char**) {
     //         });
 
 
-    //     prepareStmt.print_mystmt();
-    //     fetcher.print_mystmt();
-    
     //     std::cout << "r:" << result.at(0) << std::endl;
 
     // }
@@ -67,7 +59,6 @@ int main(int, char**) {
     //             return result;
     //         });
 
-    //     fetcher.print_mystmt();
     
     //     std::cout << "r:" << result.at(0) << std::endl;
 

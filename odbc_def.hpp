@@ -4,19 +4,6 @@
 
 namespace odbctemplate
 {
-    class odbcString{
-    public:
-        odbcString(){
-            //std::cout << "default myvalue create\n";
-        }
-        odbcString(const char * v)
-            : string(v)
-            , length(strlen(v)){
-        }
-        const char *string;
-        int length;
-
-    };
     using Ty_Result = std::tuple<
         std::string /*error_code*/, 
         std::string /*error_desc*/>;
@@ -24,7 +11,6 @@ namespace odbctemplate
         CODE = 0,
         ERROR_MESSAGE,
     };
-
 }
 
 

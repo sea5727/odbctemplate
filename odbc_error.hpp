@@ -78,6 +78,9 @@ namespace odbctemplate
             SQLSMALLINT type, 
             SQLHANDLE handle,
             SQLRETURN status) {
+            if(status == SQL_NO_DATA){
+                throw OdbcError{"SQL_NO_DATA"};
+            }
             throw OdbcError{type, handle, status};
         };
 
