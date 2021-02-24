@@ -9,7 +9,7 @@ enable_testing()
 include_directories(.)
 
 link_directories(/usr/local/lib64 /usr/lib64 )
-link_libraries(odbc)
+link_libraries(odbc pthread)
 
 add_subdirectory(test)
 
