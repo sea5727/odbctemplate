@@ -4,7 +4,6 @@
 
 namespace odbctemplate
 {
-    
     class OdbcResetedStmt{
     private:
         std::shared_ptr<OdbcStmt> stmt;

@@ -1,12 +1,9 @@
 #pragma once
 
 #include "odbctemplate.hpp"
-#include <typeinfo>
+
 namespace odbctemplate
 {
-
-
-
     class OdbcpreparedStmt{
         friend class OdbcpreparedUtil;
     private:

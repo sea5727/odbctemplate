@@ -1,0 +1,20 @@
+#pragma once
+
+#include <memory>
+#include <string>
+#include <iostream>
+#include <tuple>
+#include <sql.h>
+#include <sqlext.h>
+#include <functional>
+#include <typeinfo> 
+#include <string.h>
+#include <vector>
+#include <exception>
+#include <sstream>
+#include <utility>
+#include <sqlext.h>
+#include <thread>
+#include <chrono>
+#include <mutex>
+#include <atomic>

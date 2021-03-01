@@ -5,7 +5,7 @@
 #include <sqlext.h>
 #include <typeinfo>
 
-#include "odbctemplate.hpp"
+#include "odbctemplate_all.hpp"
 
 class TSMS_HISTORY{
 public:

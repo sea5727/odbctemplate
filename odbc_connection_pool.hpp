@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "odbctemplate.hpp"
 
 namespace odbctemplate

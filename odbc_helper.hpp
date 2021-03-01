@@ -4,7 +4,6 @@
 
 namespace odbctemplate
 {
-
     class BindColHelper{
     public:
         friend class OdbcpreparedStmt;

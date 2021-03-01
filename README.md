@@ -36,8 +36,7 @@ SQLRowCount : Update/Insert/Delete 결과 Row 호출
 
 # TODO LIST
 
-Simple Connection Pool 
-Simple BenchMark
+커넥션풀 만들어야 하나?
 
 
 # Example : Connection 
