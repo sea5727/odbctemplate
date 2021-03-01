@@ -72,6 +72,7 @@ namespace odbctemplate
         template <typename Param1, typename... Params>
         OdbcFetcher 
         preparedExecute(const std::string & query, const Param1 & p1, const Params&... rest){
+            // // std::cout << "p1 : " << (void *)&p1 << ", type:" << typeid(p1).name() << std::endl;
             return allocStmt().preparedStmt(query).bindExecute(p1, rest...);
         }
 

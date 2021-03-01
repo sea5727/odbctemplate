@@ -50,6 +50,7 @@
         "condition_variable": "cpp",
         "cstring": "cpp",
         "mutex": "cpp",
-        "hashtable": "cpp"
+        "hashtable": "cpp",
+        "cinttypes": "cpp"
     }
 }

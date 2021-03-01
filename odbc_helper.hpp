@@ -110,13 +110,12 @@ namespace odbctemplate
                 ret.String.assign(buffer, ret.len);
             return ret;
         }
+
         String
         getString(){
             String ret;
             char buffer[MAX_DATA_SIZE] = "";
-            SQLRETURN status;
-            SQLLEN len = 0;
-            status = SQLGetData (stmt, 
+            SQLRETURN status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_CHAR, 
                                 buffer, 
@@ -128,6 +127,21 @@ namespace odbctemplate
             ret.String.assign(buffer);
             return ret;
         }
+
+        char *
+        getStringToBuffer(char * buffer, size_t size){
+            SQLRETURN status = SQLGetData (stmt, 
+                                index++, 
+                                SQL_C_CHAR, 
+                                buffer, 
+                                size, 
+                                NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
+            }
+            return buffer;
+        }
+
         long 
         getLong(){
             long buffer = 0;

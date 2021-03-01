@@ -27,11 +27,15 @@ namespace odbctemplate
         static
         void
         connectDb(OdbcConnect & conn, const std::string & dsn){
+            static std::mutex mtx;
+            mtx.lock();
             SQLRETURN status = SQLDriverConnect(conn.dbc->dbc, NULL, (SQLCHAR *)dsn.c_str(), dsn.length(), NULL, 0, NULL, SQL_DRIVER_COMPLETE );
             if (status != SQL_SUCCESS){
+                mtx.unlock();
                 auto error = odbctemplate::OdbcError::get_odbc_error(SQL_HANDLE_DBC, conn.dbc->dbc);
                 odbctemplate::OdbcError::Throw(error);
             }
+            mtx.unlock();
         }
 
         /**

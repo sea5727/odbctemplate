@@ -5,8 +5,8 @@
 #include <sqlext.h>
 #include <typeinfo>
 
-// #include "odbctemplate.hpp"
-#include "odbctemplate_all.hpp"
+#include "odbctemplate.hpp"
+// #include "odbctemplate_all.hpp"
 
 class TSMS_HISTORY{
 public:
@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
         .setDsn("DSN=TST_DB;")
         .build();
     
+    for(int i = 0 ; i < 10000 ; i++)
     {
         // test : direct query 
 
@@ -67,182 +68,268 @@ int main(int argc, char* argv[]) {
             ret.MSG_SEQ = helper.getInt64();
             ret.PROC_RESULT = helper.getNullInt64();
             return ret;
-        });
+        }, 10);
 
-        printf("size:%d\n", ret.size());
+        // // printf("size:%d\n", ret.size());
     }
 
     {
         // test : binding query 
-        auto ret = 
-        conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ?;", 10590)
-            .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-            TSMS_HISTORY ret;
-            ret.MSG_SEQ = helper.getInt64();
-            ret.PROC_RESULT = helper.getNullInt64();
-            ret.IN_SECT = helper.getNullInt64();
-            ret.SC_TIME = helper.getString();
-            ret.SEND_TIME = helper.getNullString();
-            ret.IN_SIP_URI = helper.getNullString();
-            return ret;
-        });
+        {
+            auto ret = 
+            conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ  < ?;", 10590, 10631)
+                .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            }, 100);
 
-        printf("size:%d\n", ret.size());
+            // // printf("size:%d\n", ret.size());
+        }
+
+        {
+            auto fetcher = conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ  < ?;", "10590", "10620");
+            auto ret = fetcher.fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            });
+
+            // printf("size:%d\n", ret.size());
+
+        }
+
+        {
+            int thr = 10590;
+            std::string szThr1 = "10592";
+            std::string szThr2 = "10631";
+            
+            auto fetcher = conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ  < ?;", szThr1, szThr2);
+            auto ret = fetcher.fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            }, 100);
+            // printf("size:%d\n", ret.size());
+        }
+
+        {
+        
+            char szThr1[8] = "10591";
+            char szThr2[8] = "10631";
+
+            // std::cout << "szThr1:" << (void *)&szThr1 << std::endl;
+            // std::cout << "szThr2:" << (void *)&szThr2 << std::endl;
+            
+            auto fetcher = conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ  < ?;", szThr1, szThr2);
+            auto ret = fetcher.fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            }, 100);
+
+            // // printf("size:%d\n", ret.size());
+
+        }
+
+        {
+        
+            char szThr1[8] = "10591";
+            char szThr2[8] = "10631";
+
+            char *p1 = szThr1;
+            char *p2 = szThr2;
+
+            auto fetcher = conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ  < ?;", p1, p2);
+            auto ret = fetcher.fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            }, 100);
+
+            // printf("size:%d\n", ret.size());
+
+        }
     }
 
-    {
-        // test : binding query and reuse preparedstmt handler
-        int thredhold = 10590;
-        int limit = 50;
-        auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
-        auto ret1 = stmt.bindExecute(thredhold, limit)
-            .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-            TSMS_HISTORY ret;
-            ret.MSG_SEQ = helper.getInt64();
-            ret.PROC_RESULT = helper.getNullInt64();
-            ret.IN_SECT = helper.getNullInt64();
-            ret.SC_TIME = helper.getString();
-            ret.SEND_TIME = helper.getNullString();
-            ret.IN_SIP_URI = helper.getNullString();
-            return ret;
-        }, limit);
+    // {
+    //     // test : binding query and reuse preparedstmt handler
+    //     int thredhold = 10590;
+    //     int limit = 50;
+    //     auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
+    //     auto ret1 = stmt.bindExecute(thredhold, limit)
+    //         .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    //         TSMS_HISTORY ret;
+    //         ret.MSG_SEQ = helper.getInt64();
+    //         ret.PROC_RESULT = helper.getNullInt64();
+    //         ret.IN_SECT = helper.getNullInt64();
+    //         ret.SC_TIME = helper.getString();
+    //         ret.SEND_TIME = helper.getNullString();
+    //         ret.IN_SIP_URI = helper.getNullString();
+    //         return ret;
+    //     }, limit);
 
-        thredhold = 10600;
-        limit = 20;
-        auto ret2 = stmt.bindExecute(thredhold, limit)
-            .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-            TSMS_HISTORY ret;
-            ret.MSG_SEQ = helper.getInt64();
-            ret.PROC_RESULT = helper.getNullInt64();
-            ret.IN_SECT = helper.getNullInt64();
-            ret.SC_TIME = helper.getString();
-            ret.SEND_TIME = helper.getNullString();
-            ret.IN_SIP_URI = helper.getNullString();
-            return ret;
-        }, limit);
+    //     thredhold = 10600;
+    //     limit = 20;
+    //     auto ret2 = stmt.bindExecute(thredhold, limit)
+    //         .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    //         TSMS_HISTORY ret;
+    //         ret.MSG_SEQ = helper.getInt64();
+    //         ret.PROC_RESULT = helper.getNullInt64();
+    //         ret.IN_SECT = helper.getNullInt64();
+    //         ret.SC_TIME = helper.getString();
+    //         ret.SEND_TIME = helper.getNullString();
+    //         ret.IN_SIP_URI = helper.getNullString();
+    //         return ret;
+    //     }, limit);
 
-        printf("ret1 size:%d\n", ret1.size());
-        printf("ret2 size:%d\n", ret2.size());
-    }
+    //     printf("ret1 size:%d\n", ret1.size());
+    //     printf("ret2 size:%d\n", ret2.size());
+    // }
     
 
-    {
-        TSMS_HISTORY2 ret;
-        auto fetcher = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY")
-            .Execute()
-            .bindResultCol([&](odbctemplate::BindColHelper & helper) {
-                helper.setBindColLongNotNull(&ret.MSG_SEQ.Int64);
-                helper.setBindColLongNullable(&ret.PROC_RESULT);
-                helper.setBindColLongNullable(&ret.IN_SECT);
-                helper.setBindColStringNotNull(ret.SC_TIME.Char);
-                helper.setBindColStringNullable(&ret.SEND_TIME);
-                helper.setBindColStringNullable(&ret.IN_SIP_URI);
+    // {
+    //     TSMS_HISTORY2 ret;
+    //     auto fetcher = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY")
+    //         .Execute()
+    //         .bindResultCol([&](odbctemplate::BindColHelper & helper) {
+    //             helper.setBindColLongNotNull(&ret.MSG_SEQ.Int64);
+    //             helper.setBindColLongNullable(&ret.PROC_RESULT);
+    //             helper.setBindColLongNullable(&ret.IN_SECT);
+    //             helper.setBindColStringNotNull(ret.SC_TIME.Char);
+    //             helper.setBindColStringNullable(&ret.SEND_TIME);
+    //             helper.setBindColStringNullable(&ret.IN_SIP_URI);
                 
-            });
+    //         });
             
 
-        while(fetcher.fetch()){
-            // ret.print();
-        }
-    }
+    //     while(fetcher.fetch()){
+    //         // ret.print();
+    //     }
+    // }
 
-    {
-        //mutlithread test
-        std::vector<std::thread> workers;
-        workers.emplace_back([]{
-            auto conn = odbctemplate::OdbcConnectBuilder()
-                .setAutocommit(true)
-                .setLoginTimeout(30)
-                .setDsn("DSN=TST_DB;")
-                .build();
-            int thredhold = 10590;
-            int limit = 50;
-            auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
+    // {
+    //     //mutlithread test
+    //     std::vector<std::thread> workers;
+    //     workers.emplace_back([]{
+    //         auto conn = odbctemplate::OdbcConnectBuilder()
+    //             .setAutocommit(true)
+    //             .setLoginTimeout(30)
+    //             .setDsn("DSN=TST_DB;")
+    //             .build();
+    //         int thredhold = 10590;
+    //         int limit = 50;
+    //         auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
 
-            for(int i = 0 ; i < 100 ; i++){
-                auto ret1 = stmt.bindExecute(thredhold, limit)
-                    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-                    TSMS_HISTORY ret;
-                    ret.MSG_SEQ = helper.getInt64();
-                    ret.PROC_RESULT = helper.getNullInt64();
-                    ret.IN_SECT = helper.getNullInt64();
-                    ret.SC_TIME = helper.getString();
-                    ret.SEND_TIME = helper.getNullString();
-                    ret.IN_SIP_URI = helper.getNullString();
-                    return ret;
-                }, limit);
+    //         for(int i = 0 ; i < 100 ; i++){
+    //             auto ret1 = stmt.bindExecute(thredhold, limit)
+    //                 .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    //                 TSMS_HISTORY ret;
+    //                 ret.MSG_SEQ = helper.getInt64();
+    //                 ret.PROC_RESULT = helper.getNullInt64();
+    //                 ret.IN_SECT = helper.getNullInt64();
+    //                 ret.SC_TIME = helper.getString();
+    //                 ret.SEND_TIME = helper.getNullString();
+    //                 ret.IN_SIP_URI = helper.getNullString();
+    //                 return ret;
+    //             }, limit);
                 
-                for(auto & ret : ret1){
-                    ret.print(1);
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-        });
-        workers.emplace_back([]{
-            auto conn = odbctemplate::OdbcConnectBuilder()
-                .setAutocommit(true)
-                .setLoginTimeout(30)
-                .setDsn("DSN=TST_DB;")
-                .build();
-            int thredhold = 10590;
-            int limit = 50;
-            auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
+    //             for(auto & ret : ret1){
+    //                 ret.print(1);
+    //             }
+    //             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //         }
+    //     });
+    //     workers.emplace_back([]{
+    //         auto conn = odbctemplate::OdbcConnectBuilder()
+    //             .setAutocommit(true)
+    //             .setLoginTimeout(30)
+    //             .setDsn("DSN=TST_DB;")
+    //             .build();
+    //         int thredhold = 10590;
+    //         int limit = 50;
+    //         auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
 
-            for(int i = 0 ; i < 100 ; i++){
-                auto ret1 = stmt.bindExecute(thredhold, limit)
-                    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-                    TSMS_HISTORY ret;
-                    ret.MSG_SEQ = helper.getInt64();
-                    ret.PROC_RESULT = helper.getNullInt64();
-                    ret.IN_SECT = helper.getNullInt64();
-                    ret.SC_TIME = helper.getString();
-                    ret.SEND_TIME = helper.getNullString();
-                    ret.IN_SIP_URI = helper.getNullString();
-                    return ret;
-                }, limit);
+    //         for(int i = 0 ; i < 100 ; i++){
+    //             auto ret1 = stmt.bindExecute(thredhold, limit)
+    //                 .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    //                 TSMS_HISTORY ret;
+    //                 ret.MSG_SEQ = helper.getInt64();
+    //                 ret.PROC_RESULT = helper.getNullInt64();
+    //                 ret.IN_SECT = helper.getNullInt64();
+    //                 ret.SC_TIME = helper.getString();
+    //                 ret.SEND_TIME = helper.getNullString();
+    //                 ret.IN_SIP_URI = helper.getNullString();
+    //                 return ret;
+    //             }, limit);
                 
-                for(auto & ret : ret1){
-                    ret.print(2);
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-        });
-        workers.emplace_back([]{
-            auto conn = odbctemplate::OdbcConnectBuilder()
-                .setAutocommit(true)
-                .setLoginTimeout(30)
-                .setDsn("DSN=TST_DB;")
-                .build();
-            int thredhold = 10590;
-            int limit = 50;
-            auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
+    //             for(auto & ret : ret1){
+    //                 ret.print(2);
+    //             }
+    //             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //         }
+    //     });
+    //     workers.emplace_back([]{
+    //         auto conn = odbctemplate::OdbcConnectBuilder()
+    //             .setAutocommit(true)
+    //             .setLoginTimeout(30)
+    //             .setDsn("DSN=TST_DB;")
+    //             .build();
+    //         int thredhold = 10590;
+    //         int limit = 50;
+    //         auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? limit ?;");
 
-            for(int i = 0 ; i < 100 ; i++){
-                auto ret1 = stmt.bindExecute(thredhold, limit)
-                    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-                    TSMS_HISTORY ret;
-                    ret.MSG_SEQ = helper.getInt64();
-                    ret.PROC_RESULT = helper.getNullInt64();
-                    ret.IN_SECT = helper.getNullInt64();
-                    ret.SC_TIME = helper.getString();
-                    ret.SEND_TIME = helper.getNullString();
-                    ret.IN_SIP_URI = helper.getNullString();
-                    return ret;
-                }, limit);
+    //         for(int i = 0 ; i < 100 ; i++){
+    //             auto ret1 = stmt.bindExecute(thredhold, limit)
+    //                 .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    //                 TSMS_HISTORY ret;
+    //                 ret.MSG_SEQ = helper.getInt64();
+    //                 ret.PROC_RESULT = helper.getNullInt64();
+    //                 ret.IN_SECT = helper.getNullInt64();
+    //                 ret.SC_TIME = helper.getString();
+    //                 ret.SEND_TIME = helper.getNullString();
+    //                 ret.IN_SIP_URI = helper.getNullString();
+    //                 return ret;
+    //             }, limit);
                 
-                for(auto & ret : ret1){
-                    ret.print(3);
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
-        });
+    //             for(auto & ret : ret1){
+    //                 ret.print(3);
+    //             }
+    //             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //         }
+    //     });
 
-        for(auto & worker : workers){
-            printf("join ? \n");
-            worker.join();
-        }
+    //     for(auto & worker : workers){
+    //         printf("join ? \n");
+    //         worker.join();
+    //     }
 
-    }
+    // }
     return 0;
 
 }

@@ -27,7 +27,7 @@ namespace odbctemplate
          */
         unsigned short int
         getNumResultCols(){
-            SQLSMALLINT col;
+            SQLSMALLINT col = 0;
 
             SQLRETURN status = SQLNumResultCols(stmt->stmt, &col);
             if( status != SQL_SUCCESS){
@@ -94,7 +94,7 @@ namespace odbctemplate
          */
         template<typename Return_Ty>
         std::vector<Return_Ty>
-        fetch(std::function<Return_Ty(FetchHelper &)> help, int N) {
+        fetch(std::function<Return_Ty(FetchHelper &)> && help, int N) {
             if(stmt->stmt == SQL_NULL_HSTMT){
                 odbctemplate::OdbcError::Throw("stmt is null"); // no dbc error;
             }
@@ -106,9 +106,9 @@ namespace odbctemplate
             if(N > 0)
                 results.reserve(N);
 
+            FetchHelper helper(stmt->stmt);
             if(col > 0 && help != nullptr){
                 while((status = SQLFetch(stmt->stmt)) == SQL_SUCCESS){
-                    FetchHelper helper(stmt->stmt);
                     if(col > 0 && status != SQL_NO_DATA){
                         results.push_back(std::move(help(helper)));
                     }
@@ -121,8 +121,8 @@ namespace odbctemplate
 
         template<typename Return_Ty>
         std::vector<Return_Ty>
-        fetch(std::function<Return_Ty(FetchHelper &)> help) {
-            return fetch<Return_Ty>(help, 0);
+        fetch(std::function<Return_Ty(FetchHelper &)> && help) {
+            return fetch<Return_Ty>(std::move(help), 0);
         }
 
         long 
