@@ -9,6 +9,7 @@ namespace odbctemplate
     public:
         friend class OdbcpreparedStmt;
         friend class OdbcFetcher;
+    private:
         const int       MAX_DATA_SIZE = 1024;
         int             index = 1;
         SQLHSTMT        stmt  = SQL_NULL_HSTMT;
@@ -19,14 +20,14 @@ namespace odbctemplate
         }
     public:
         void
-        setBindColLongNotNull(int64_t * buffer){            
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, buffer, 0, NULL);
+        setInt64NotNull(Int64 * buffer){
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
-        setBindColLongNullable(NullInt64 * buffer){
+        setInt64Nullable(NullInt64 * buffer){
             SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -34,30 +35,32 @@ namespace odbctemplate
         }
 
         void
-        setBindColShortNotNull(int32_t * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, buffer, 0, NULL);
+        setInt32NotNull(Int32 * buffer){
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
-        setBindColShortNullable(NullInt32 * buffer){
+        setInt32Nullable(NullInt32 * buffer){
             SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
+
         template<int N>
         void
-        setBindColStringNotNull(char (&buffer)[N]){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer, N, NULL);
+        setCharNotNull(Char<N> *buffer){
+            
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, NULL);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         template<int N>
         void
-        setBindColStringNullable(NullChar<N> * buffer){
+        setCharNullable(NullChar<N> * buffer){
             SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, &buffer->len);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -75,22 +78,14 @@ namespace odbctemplate
         FetchHelper(SQLHSTMT stmt) 
             : stmt(stmt) {
         }
-            // // u_char name[32];
-            // // SQLSMALLINT namelen;
-            // // SQLULEN colsize;
-            // // SQLSMALLINT decimal;
-            // // SQLSMALLINT datatype;
-            // // SQLSMALLINT nullable;
-            // // SQLRETURN status2 = SQLDescribeCol(stmt , index, name, sizeof(name), &namelen, &datatype, &colsize, &decimal, &nullable);
-            // // printf("%d SQLDescribeCol status:%d, name:%s, namelen:%d, datatype:%d, colsize:%d, decimal:%d, nullable:%d\n", 
-            // //     index,
-            // //     status2, 
-            // //     name, 
-            // //     namelen, 
-            // //     datatype,
-            // //     colsize,
-            // //     decimal,
-            // //     nullable) ;
+
+        inline
+        void
+        Clear(){
+            index = 1;
+        }
+
+
         NullString
         getNullString(){
             NullString ret;

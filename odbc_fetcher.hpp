@@ -106,9 +106,10 @@ namespace odbctemplate
             if(N > 0)
                 results.reserve(N);
 
-            FetchHelper helper(stmt->stmt);
             if(col > 0 && help != nullptr){
+                FetchHelper helper(stmt->stmt);
                 while((status = SQLFetch(stmt->stmt)) == SQL_SUCCESS){
+                    helper.Clear();    
                     if(col > 0 && status != SQL_NO_DATA){
                         results.push_back(std::move(help(helper)));
                     }

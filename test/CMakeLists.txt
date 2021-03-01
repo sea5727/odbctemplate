@@ -19,5 +19,16 @@
 # add_executable(test6 test6_connection_pool.cpp)
 # add_executable(OdbcConnectBuilder-test OdbcConnectBuilder-test.cpp)
 
+
+add_executable(test_1_dbconnect test_1_dbconnect.cpp)
+add_executable(test_2_directExecute test_2_directExecute.cpp)
+add_executable(test_3_preparedExecute test_3_preparedExecute.cpp)
+add_executable(test_4_preparedStmt test_4_preparedStmt.cpp)
+add_executable(test_5_bindCol_One test_5_bindCol_One.cpp)
+add_executable(test_6_bindCol_Many test_6_bindCol_Many.cpp)
+add_executable(test_7_update test_7_update.cpp)
+
+
+
 add_executable(test_odbcconnectbuilder test_odbcconnectbuilder.cpp)
 add_executable(test_odbcconnect test_odbcconnect.cpp)
