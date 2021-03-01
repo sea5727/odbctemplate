@@ -54,6 +54,14 @@ int main(int argc, char* argv[]) {
         result.print();
     }
     
+
+    // update one line 
+    auto count = 
+    conn.directExecute("UPDATE TSMS_HISTORY SET SC_TIME=20210302 where MSG_SEQ=10590")
+        .getUpdateRowCount();
+
+    printf("count:%d\n", count);
+
     return 0;
 
 }

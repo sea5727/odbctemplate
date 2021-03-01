@@ -5,10 +5,8 @@ Easy db library for C++ wrapping the ODBC client C library
 
 ODBC C 라이브러리를 C++로 랩핑한 쉬운 DB 라이브러리
 
+header-only like crow
 
-install : yum install unixODBC-devel
-
-maria-db install : https://blog.sleeplessbeastie.eu/2018/01/08/how-to-install-and-configure-mariadb-unixodbc-driver/
 
 # ODBC ? 
 
@@ -61,7 +59,7 @@ auto conn = odbctemplate::OdbcConnectBuilder()
     -   String
     -   NullString
     -   Bool
-    -   NullBoll
+    -   NullBool
 
 
 # Example 
@@ -78,6 +76,14 @@ public:
 };
 ```
 ## directExecute
+
+-   INSERT/UPDATE/DELETE
+```cpp
+    auto count = 
+    conn.directExecute("UPDATE TSMS_HISTORY SET SC_TIME=20210302 where MSG_SEQ=10590")
+        .getUpdateRowCount();
+```
+-   SELECT
 ```cpp
 auto ret = 
     conn.directExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
