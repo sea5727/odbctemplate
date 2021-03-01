@@ -7,7 +7,6 @@
 
 #include "odbctemplate.hpp"
 
-
 class TSMS_HISTORY{
 public:
     odbctemplate::Int64 MSG_SEQ;
@@ -29,40 +28,42 @@ public:
     }
 };
 
-std::string
-get_time_fmt(time_t & t){
-    char buff[20];
-    strftime(buff, sizeof(buff), "%Y%m%d%H%M%S", localtime(&t));
-    return buff;
-}
 
 int main(int argc, char* argv[]) {
+    if(argc < 2){
+        std::cout << "input max count" << std::endl;
+        return 0;
+    }
+
+    auto max = atoi(argv[1]);
     auto conn = odbctemplate::OdbcConnectBuilder()
         .setAutocommit(true)
         .setLoginTimeout(30)
         .setDsn("DSN=TST_DB;")
         .build();
+
     
     
     TSMS_HISTORY result;
-
-    auto now = time(0);
-    auto fmt = get_time_fmt(now);
-    
-    // update one line 
-    auto count = 
-    conn.preparedExecute("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?", fmt, 10590)
-        .getUpdateRowCount();
-
-    printf("count:%d\n", count);
-    // reuse update handler
-
-    auto stmt = conn.preparedStmt("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?");
-    for(int i = 10591 ; i < 10595 ; i++){
-        auto cnt = stmt.bindExecute(fmt, i).getRowCount();
-        printf("count:%d\n", cnt);
+    auto stmt = 
+    conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
+        .bindResultCol([&result](odbctemplate::BindColHelper & helper){
+            helper.setInt64NotNull(&result.MSG_SEQ);
+            helper.setInt64Nullable(&result.PROC_RESULT);
+            helper.setInt64Nullable(&result.IN_SECT);
+            helper.setCharNotNull(&result.SC_TIME);
+            helper.setCharNullable(&result.SEND_TIME);
+            helper.setCharNullable(&result.IN_SIP_URI);
+        });
+    for(int i = 0 ; i < max ; i++){
+        auto fetcher = stmt.Execute();
+        while(fetcher.fetch()){
+            // result.print();
+        }
     }
 
+  
+    
     return 0;
 
 }

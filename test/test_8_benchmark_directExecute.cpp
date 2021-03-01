@@ -28,47 +28,36 @@ public:
 };
 
 
-std::string
-get_time_fmt(time_t & t){
-    char buff[20];
-    strftime(buff, sizeof(buff), "%Y%m%d%H%M%S", localtime(&t));
-    return buff;
-}
-
 int main(int argc, char* argv[]) {
+    if(argc < 2){
+        std::cout << "input max count" << std::endl;
+        return 0;
+    }
+
+    auto max = atoi(argv[1]);
     auto conn = odbctemplate::OdbcConnectBuilder()
         .setAutocommit(true)
         .setLoginTimeout(30)
         .setDsn("DSN=TST_DB;")
         .build();
-    
-    auto ret = 
-    conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ < ?;", 10587, 10631)
-        .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-        TSMS_HISTORY ret;
-        ret.MSG_SEQ = helper.getInt64();
-        ret.PROC_RESULT = helper.getNullInt64();
-        ret.IN_SECT = helper.getNullInt64();
-        ret.SC_TIME = helper.getString();
-        ret.SEND_TIME = helper.getNullString();
-        ret.IN_SIP_URI = helper.getNullString();
-        return ret;
-    });
 
-    printf("size:%d\n", ret.size());
-    for(auto & result : ret){
-        result.print();
+    
+    for(int i = 0 ; i < max ; i++){
+        auto ret = 
+        conn.directExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
+            .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+                TSMS_HISTORY ret;
+                ret.MSG_SEQ = helper.getInt64();
+                ret.PROC_RESULT = helper.getNullInt64();
+                ret.IN_SECT = helper.getNullInt64();
+                ret.SC_TIME = helper.getString();
+                ret.SEND_TIME = helper.getNullString();
+                ret.IN_SIP_URI = helper.getNullString();
+                return ret;
+            }, 68);
     }
 
-    auto now = time(0);
-    auto fmt = get_time_fmt(now);
     
-    auto count = 
-    conn.preparedExecute("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?", fmt, 10590)
-        .getUpdateRowCount();
-
-    printf("update:%d\n", count);
-
     return 0;
 
 }

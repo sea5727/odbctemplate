@@ -40,126 +40,152 @@ Simple Connection Pool
 Simple BenchMark
 
 
-### Example : Connection 
+# Example : Connection 
 
 ```cpp
-#include <odbctemplate/odbctemplate.h>
+#include <odbctemplate/odbctemplate.hpp>
 
 auto conn = odbctemplate::OdbcConnectBuilder()
+    .setAutocommit(true)
+    .setLoginTimeout(30)
     .setDsn("DSN=TST_DB;")
-    .setAutocommit(false)
-    .setLoginTimeout(100)
     .build();
-
 ```
+# Data Type
+-   Type들.
+    -   Int64
+    -   NullInt64
+    -   Int32
+    -   NullInt32
+    -   Float
+    -   NullFloat
+    -   String
+    -   NullString
+    -   Bool
+    -   NullBoll
 
 
-### Example : SELECT 
-
+# Example 
+## Data Object
 ```cpp
-
-class tuto {
+class TSMS_HISTORY{
 public:
-    int id;
-    std::string name;
-    std::string test;
+    odbctemplate::Int64 MSG_SEQ;
+    odbctemplate::NullInt64 PROC_RESULT;
+    odbctemplate::NullInt64 IN_SECT;
+    odbctemplate::String SC_TIME;
+    odbctemplate::NullString SEND_TIME;
+    odbctemplate::NullString IN_SIP_URI;
 };
-
-
-auto result = 
-    conn.preparedExecute("select id, test, name from tuto where name=?;", "searchname")
-    .fetch<tuto>([](odbctemplate::FetchHelper helper){
-        tuto result;
-        result.id = helper.getLong();
-        result.test = helper.getString();
-        result.name = helper.getString();
-        return result;
+```
+## directExecute
+```cpp
+auto ret = 
+    conn.directExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
+    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+        TSMS_HISTORY ret;
+        ret.MSG_SEQ = helper.getInt64();
+        ret.PROC_RESULT = helper.getNullInt64();
+        ret.IN_SECT = helper.getNullInt64();
+        ret.SC_TIME = helper.getString();
+        ret.SEND_TIME = helper.getNullString();
+        ret.IN_SIP_URI = helper.getNullString();
+        return ret;
     });
-for(auto & tuto : result){
-    tuto.print();
+
+for(auto & result : ret){
+    result.print();
 }
 
 ```
 
-### Example : UPDATE / INSERT / DELETE 
-
+## preparedExecute ( Binding Query )
 ```cpp
+auto ret = 
+conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ < ?;", 10587, 10631)
+    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+    TSMS_HISTORY ret;
+    ret.MSG_SEQ = helper.getInt64();
+    ret.PROC_RESULT = helper.getNullInt64();
+    ret.IN_SECT = helper.getNullInt64();
+    ret.SC_TIME = helper.getString();
+    ret.SEND_TIME = helper.getNullString();
+    ret.IN_SIP_URI = helper.getNullString();
+    return ret;
+});
 
-auto succ = conn.preparedExecute("UPDATE tuto SET test=? where name = ?", "teatvalue", "searchname")
-    .getUpdateRowCount();
-
-std::cout << succ << std::endl;
-
+printf("size:%d\n", ret.size());
+for(auto & result : ret){
+    result.print();
+}
 ```
 
-
-### Example : REUSE QUERY ( OdbcPreparedStmt )
+## Example : preparedStmt ( REUSE QUERY )
 
 ```cpp
+// reuse stmt handler
+auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ = ?;");
 
-auto preparedStmt = conn.preparedStmt("select id, test, name from tuto where id=?;");
-
-int i = 0;
-
-while(1){
-    auto result =  preparedStmt.bindExecute(i) //  Execute with parameter binding
-        .fetch<tuto>([](odbctemplate::FetchHelper helper){
-            tuto result;
-            result.id = helper.getLong();
-            result.test = helper.getString();
-            result.name = helper.getString();
-            return result;
+for(int i = 10590 ; i < 10631; i++){
+    auto ret = stmt.bindExecute(i)
+        .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
+            TSMS_HISTORY ret;
+            ret.MSG_SEQ = helper.getInt64();
+            ret.PROC_RESULT = helper.getNullInt64();
+            ret.IN_SECT = helper.getNullInt64();
+            ret.SC_TIME = helper.getString();
+            ret.SEND_TIME = helper.getNullString();
+            ret.IN_SIP_URI = helper.getNullString();
+            return ret;
         });
-    i += 1;
-    std::this_thread::sleep_for(std::chrono::seconds(1))
-}
-
-```
-
-
-### Example : SELECT LARGE AMOUNT OF DATA ( BindColStmt / BindColHelper )
-
-```cpp
-
-class tuto2 {
-public:
-    long id;
-    char name[64 + 1];
-    char test[64 + 1];
-    char address[128 + 1];
-    void 
-    print(){
-        std::cout << "id : " << id << std::endl;
-        std::cout << "name : " << name << std::endl;
-        std::cout << "test : " << test << std::endl;
-        std::cout << "address : " << address << std::endl;
-    }
-};
-
-... 
-
-tuto2 result;
-
-auto preparedStmt = conn.preparedStmt("select id, name, test, address from tuto")
-    .bindResultCol([&](odbctemplate::BindColHelper helper){
-        helper.setBindColLong(&result.id);
-        helper.setBindColString(result.name, sizeof(result.name));
-        helper.setBindColString(result.test, sizeof(result.test));
-        helper.setBindColString(result.address, sizeof(result.address));
-    });
-
-while(1){
-    auto fetcher = preparedStmt.Execute();
-    auto sel_count = 0;
-    while(fetcher.fetch()){
-        sel_count++;
+    printf("size:%d\n", ret.size());
+    for(auto & result : ret){
         result.print();
     }
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+```
+
+## Example : UPDATE / INSERT / DELETE 
+
+```cpp
+// update one line 
+auto count = 
+conn.preparedExecute("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?", fmt, 10590)
+    .getUpdateRowCount();
+printf("count:%d\n", count);
+
+// reuse update handler
+auto stmt = conn.preparedStmt("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?")
+for(int i = 10591 ; i < 10595 ; i++){
+    auto cnt = stmt.bindExecute(fmt, i).getRowCount();
+    printf("count:%d\n", cnt);
 }
 
+```
+
+
+
+
+
+## Example : BindCol ( Select Many )
+
+```cpp
+TSMS_HISTORY result;
+
+auto stmt = 
+conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
+    .bindResultCol([&result](odbctemplate::BindColHelper & helper){
+        helper.setInt64NotNull(&result.MSG_SEQ);
+        helper.setInt64Nullable(&result.PROC_RESULT);
+        helper.setInt64Nullable(&result.IN_SECT);
+        helper.setCharNotNull(&result.SC_TIME);
+        helper.setCharNullable(&result.SEND_TIME);
+        helper.setCharNullable(&result.IN_SIP_URI);
+    });
+
+auto fetcher = stmt.Execute();
 while(fetcher.fetch()){
-    // result.print();
+    result.print();
 }
 
 ```
