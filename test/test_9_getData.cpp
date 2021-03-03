@@ -44,24 +44,28 @@ int main(int argc, char* argv[]) {
         .build();
     
     
-    TSMS_HISTORY result;
 
     auto now = time(0);
     auto fmt = get_time_fmt(now);
     
-    // update one line 
-    auto count = 
-    conn.preparedExecute("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?", fmt, 10590)
-        .getUpdateRowCount();
 
-    printf("count:%d\n", count);
-    // reuse update handler
+    TSMS_HISTORY result;
 
-    auto stmt = conn.preparedStmt("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?");
-    for(int i = 10591 ; i < 10595 ; i++){
-        auto cnt = stmt.bindExecute(fmt, i).getRowCount();
-        printf("count:%d\n", cnt);
+    auto fetcher = 
+    conn.directExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;");
+
+    while(fetcher.fetch()){
+        fetcher.getData(1, &result.MSG_SEQ);
+        fetcher.getData(2, &result.PROC_RESULT);
+        fetcher.getData(3, &result.IN_SECT);
+        fetcher.getData(4, &result.SC_TIME);
+        fetcher.getData(5, &result.SEND_TIME);
+        fetcher.getData(6, &result.IN_SIP_URI);    
+        result.print();
     }
+
+    
+
 
     return 0;
 

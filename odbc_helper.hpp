@@ -20,14 +20,14 @@ namespace odbctemplate
     public:
         void
         setInt64NotNull(Int64 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
         setInt64Nullable(NullInt64 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -35,14 +35,14 @@ namespace odbctemplate
 
         void
         setInt32NotNull(Int32 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
         setInt32Nullable(NullInt32 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -52,7 +52,7 @@ namespace odbctemplate
         void
         setCharNotNull(Char<N> *buffer){
             
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Value, N, NULL);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -60,7 +60,7 @@ namespace odbctemplate
         template<int N>
         void
         setCharNullable(NullChar<N> * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Value, N, &buffer->len);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -101,7 +101,7 @@ namespace odbctemplate
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
             if(ret.len > 0)
-                ret.String.assign(buffer, ret.len);
+                ret.Value.assign(buffer, ret.len);
             return ret;
         }
 
@@ -118,7 +118,7 @@ namespace odbctemplate
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
-            ret.String.assign(buffer);
+            ret.Value.assign(buffer);
             return ret;
         }
 
@@ -161,8 +161,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SLONG, 
-                                &ret.Int64, 
-                                sizeof(ret.Int64), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 (SQLLEN *)&ret.len);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -180,8 +180,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SLONG, 
-                                &ret.Int64, 
-                                sizeof(ret.Int64), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 NULL);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -217,8 +217,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SSHORT, 
-                                &ret.Int32, 
-                                sizeof(ret.Int32), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 NULL);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -236,8 +236,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SSHORT, 
-                                &ret.Int32, 
-                                sizeof(ret.Int32), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 (SQLLEN *)&ret.len);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);

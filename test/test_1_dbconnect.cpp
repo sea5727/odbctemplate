@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <assert.h>
 
-#include "odbctemplate_all.hpp"
+#include "odbctemplate.hpp"
 
 
 int main(int argc, char* argv[]) {

@@ -29,12 +29,6 @@ public:
     }
 };
 
-std::string
-get_time_fmt(time_t & t){
-    char buff[20];
-    strftime(buff, sizeof(buff), "%Y%m%d%H%M%S", localtime(&t));
-    return buff;
-}
 
 int main(int argc, char* argv[]) {
     auto conn = odbctemplate::OdbcConnectBuilder()
@@ -46,23 +40,20 @@ int main(int argc, char* argv[]) {
     
     TSMS_HISTORY result;
 
-    auto now = time(0);
-    auto fmt = get_time_fmt(now);
-    
-    // update one line 
-    auto count = 
-    conn.preparedExecute("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?", fmt, 10590)
-        .getUpdateRowCount();
+    auto stmt = 
+    conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;");
+    auto fetcher = stmt.Execute()
+        .bindCol(1, &result.MSG_SEQ)
+        .bindCol(2, &result.PROC_RESULT)
+        .bindCol(3, &result.IN_SECT)
+        .bindCol(4, &result.SC_TIME)
+        .bindCol(5, &result.SEND_TIME)
+        .bindCol(6, &result.IN_SIP_URI);
 
-    printf("count:%d\n", count);
-    // reuse update handler
-
-    auto stmt = conn.preparedStmt("UPDATE TSMS_HISTORY SET SC_TIME=? where MSG_SEQ=?");
-    for(int i = 10591 ; i < 10595 ; i++){
-        auto cnt = stmt.bindExecute(fmt, i).getRowCount();
-        printf("count:%d\n", cnt);
+    while(fetcher.fetch()){
+        result.print();
     }
-
+  
     return 0;
 
 }

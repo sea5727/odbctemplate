@@ -5,7 +5,7 @@
 #include <sqlext.h>
 #include <typeinfo>
 
-#include "odbctemplate_all.hpp"
+#include "odbctemplate.hpp"
 
 class TSMS_HISTORY{
 public:
@@ -19,12 +19,12 @@ public:
     void
     print(){
         printf("MSG_SEQ:%d, PROC_RESULT(%d:%d), IN_SECT(%d:%d), SC_TIME:%s, SEND_TIME(%d:%s), IN_SIP_URI(%d:%s)\n", 
-            MSG_SEQ,
-            PROC_RESULT.Valid(), PROC_RESULT.Valid() == true ? PROC_RESULT.Int64 : 0,
-            IN_SECT.Valid(), IN_SECT.Valid() == true ? IN_SECT.Int64 : 0,
-            SC_TIME.Char,
-            SEND_TIME.Valid(), SEND_TIME.Valid() == true ? SEND_TIME.Char: "", 
-            IN_SIP_URI.Valid(), IN_SIP_URI.Valid() == true ? IN_SIP_URI.Char: "");
+            MSG_SEQ.Value,
+            PROC_RESULT.Valid(), PROC_RESULT.Valid() == true ? PROC_RESULT.Value : 0,
+            IN_SECT.Valid(), IN_SECT.Valid() == true ? IN_SECT.Value : 0,
+            SC_TIME.Value,
+            SEND_TIME.Valid(), SEND_TIME.Valid() == true ? SEND_TIME.Value: "", 
+            IN_SIP_URI.Valid(), IN_SIP_URI.Valid() == true ? IN_SIP_URI.Value: "");
     }
 };
 
