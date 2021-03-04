@@ -8,13 +8,13 @@ namespace odbctemplate
     class OdbcConnect{
         friend class OdbcConnectBuilder;
         friend class OdbcConnectCtl;
-    private:
+    public:
         std::shared_ptr<OdbcDbc> dbc;
     public:
         explicit OdbcConnect() = default;
         static OdbcConnectBuilder builder();
     
-    private:
+    public:
 
         /**
          * @brief BASE STMT 핸들러 
@@ -35,7 +35,7 @@ namespace odbctemplate
             return OdbcResetedStmt(stmt);
         }
 
-    public:
+
         /**
          * @brief preparedStmt 핸들러를 얻는다.
          * 

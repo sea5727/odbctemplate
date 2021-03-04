@@ -11,3 +11,4 @@ add_executable(test_8_benchmark_prepareExecute test_8_benchmark_prepareExecute.c
 add_executable(test_8_benchmark_prepareStmt test_8_benchmark_prepareStmt.cpp)
 add_executable(test_9_getData test_9_getData.cpp)
 add_executable(test_10_bindCol test_10_bindCol.cpp)
+add_executable(test_11_multi_insert test_11_multi_insert.cpp)
