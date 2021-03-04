@@ -943,7 +943,7 @@ namespace odbctemplate
          */
         OdbcFetcher
         directExecute(const std::string & query){
-            SQLRETURN status = SQLExecDirect(stmt->stmt, (SQLCHAR *)query.c_str(), query.length());
+            SQLRETURN status = SQLExecDirect(stmt->stmt, (SQLCHAR *)query.c_str(), SQL_NTS);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
             }
