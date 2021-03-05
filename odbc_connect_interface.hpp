@@ -58,10 +58,11 @@ namespace odbctemplate
         static
         bool
         getConnectionDead(OdbcConnect & conn) {
-            SQLINTEGER 	value;
+            SQLINTEGER 	value = true;
             SQLRETURN status = SQLGetConnectAttr(conn.dbc->dbc, SQL_ATTR_CONNECTION_DEAD, (SQLPOINTER) &value, 0, NULL);
             if (status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, conn.dbc->dbc, status);
+                SQLDisconnect(conn.dbc->dbc);
+                // odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, conn.dbc->dbc, status);
             }
             return (bool)value;
         }
