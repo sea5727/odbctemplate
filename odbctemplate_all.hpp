@@ -1170,7 +1170,7 @@ namespace odbctemplate
         }
         static
         void
-        connectDb(OdbcConnect & conn, const std::string & dsn){
+        connectDB(OdbcConnect & conn, const std::string & dsn){
             static std::mutex mtx;
             mtx.lock();
             SQLRETURN status = SQLDriverConnect(conn.dbc->dbc, NULL, (SQLCHAR *)dsn.c_str(), dsn.length(), NULL, 0, NULL, SQL_DRIVER_COMPLETE );
@@ -1253,7 +1253,7 @@ namespace odbctemplate
         OdbcConnectBuilder &
         setDsn(const std::string & dsn) {
             //todo validation?
-            OdbcConnectCtl::connectDb(conn, dsn);
+            OdbcConnectCtl::connectDB(conn, dsn);
             return *this;
         }
 

@@ -30,7 +30,7 @@ namespace odbctemplate
         OdbcConnectBuilder &
         setDsn(const std::string & dsn) {
             //todo validation?
-            OdbcConnectCtl::connectDb(conn, dsn);
+            OdbcConnectCtl::connectDB(conn, dsn);
             return *this;
         }
 

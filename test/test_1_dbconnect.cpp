@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
     // odbctemplate::OdbcConnectCtl::setAutocommit(conn, true);
     // odbctemplate::OdbcConnectCtl::setLoginTimeout(conn, 30);
-    // odbctemplate::OdbcConnectCtl::connectDb(conn, "DSN=TST_DB;");
+    // odbctemplate::OdbcConnectCtl::connectDB(conn, "DSN=TST_DB;");
     
     // auto autocommit = odbctemplate::OdbcConnectCtl::getAutocommit(conn);
     // auto connection_dead = odbctemplate::OdbcConnectCtl::getConnectionDead(conn);
@@ -36,13 +36,14 @@ int main(int argc, char* argv[]) {
     // assert(login_timeout == 10);
 
     while(1){
-        printf("while start\n");
-
-        // auto connection_dead = odbctemplate::OdbcConnectCtl::getConnectionDead(conn);
-        // printf("connection_dead:%d\n", connection_dead);
-        if(true){
+        auto connection_dead = odbctemplate::OdbcConnectCtl::getConnectionDead(conn);
+        printf("connection_dead:%d\n", connection_dead);
+        if(connection_dead){
             try{
-                odbctemplate::OdbcConnectCtl::connectDb(conn, "DSN=TST_DB;");
+                odbctemplate::OdbcConnectCtl::disconnectDB(conn);
+                printf("start connect DB\n");
+                odbctemplate::OdbcConnectCtl::connectDB(conn, "DSN=TST_DB;");
+                printf("connectDB Succ\n");
             } catch(odbctemplate::OdbcError & error){
                 printf("erorr:%s\n", error.what());
             }
