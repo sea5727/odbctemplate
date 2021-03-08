@@ -26,14 +26,23 @@ namespace odbctemplate
         }
         static
         void
-        connectDb(OdbcConnect & conn, const std::string & dsn){
+        connectDB(OdbcConnect & conn, const std::string & dsn){
             static std::mutex mtx;
             mtx.lock();
             SQLRETURN status = SQLDriverConnect(conn.dbc->dbc, NULL, (SQLCHAR *)dsn.c_str(), dsn.length(), NULL, 0, NULL, SQL_DRIVER_COMPLETE );
             if (status != SQL_SUCCESS){
-                mtx.unlock();
                 auto error = odbctemplate::OdbcError::get_odbc_error(SQL_HANDLE_DBC, conn.dbc->dbc);
+                mtx.unlock();
                 odbctemplate::OdbcError::Throw(error);
+                // auto code = std::get<0>(error);
+                // if(code.compare("08002") != 0){
+                //     SQLDisconnect(conn.dbc->dbc);
+                //     status = SQLDriverConnect(conn.dbc->dbc, NULL, (SQLCHAR *)dsn.c_str(), dsn.length(), NULL, 0, NULL, SQL_DRIVER_COMPLETE );
+                //     if (status != SQL_SUCCESS){
+                //         mtx.unlock();
+                //         odbctemplate::OdbcError::Throw(error);
+                //     }
+                // }
             }
             mtx.unlock();
         }
@@ -58,13 +67,27 @@ namespace odbctemplate
         static
         bool
         getConnectionDead(OdbcConnect & conn) {
-            SQLINTEGER 	value;
+            SQLINTEGER 	value = true;
             SQLRETURN status = SQLGetConnectAttr(conn.dbc->dbc, SQL_ATTR_CONNECTION_DEAD, (SQLPOINTER) &value, 0, NULL);
+            printf("getConnectionDead:%d, %d\n", status, value);
             if (status != SQL_SUCCESS){
-                odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, conn.dbc->dbc, status);
+                SQLDisconnect(conn.dbc->dbc);
+                // odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, conn.dbc->dbc, status);
             }
             return (bool)value;
         }
+
+
+        static
+        void
+        disconnectDB(OdbcConnect & conn) {
+            SQLRETURN status = SQLDisconnect(conn.dbc->dbc);
+            if (status != SQL_SUCCESS){
+                // odbctemplate::OdbcError::Throw(SQL_HANDLE_DBC, conn.dbc->dbc, status);
+            }
+            return ;
+        }
+
 
         static
         long
