@@ -246,64 +246,80 @@ namespace odbctemplate
 
     class NullString : public Nullable {
     public:
-        std::string String;
+        std::string Value;
     };
     template<int N>
     class NullChar : public Nullable {
     public:
-        char Char[N];
+        char Value[N];
     };
     template<>
     class NullChar<1> : public Nullable {
     public:
-        char Char;
+        char Value;
     };
     class NullInt64 : public Nullable {
     public:
-        int64_t Int64;
+        int64_t Value;
+    };
+    class NullUInt64 : public Nullable {
+    public:
+        uint64_t Value;
     };
     class NullInt32 : public Nullable {
     public:
-        int32_t Int32;
+        int32_t Value;
+    };
+    class NullUInt32 : public Nullable {
+    public:
+        uint64_t Value;
     };
     class NullBool : public Nullable {
     public:
-        bool Bool;
+        bool Value;
     };
     class NullFloat64 : public Nullable {
     public:
-        float Float64;  
+        float Value;  
     };
 
     template<int N>
     class Char {
     public:
-        char Char[N];
+        char Value[N];
     };
     template<>
     class Char<1> {
     public:
-        char Char;
+        char Value;
     };
     class String {
     public:
-        std::string String;    
+        std::string Value;    
     };
     class Int64 {
     public:
-        int64_t Int64;
+        int64_t Value;
+    };
+    class UInt64 {
+    public:
+        uint64_t Value;
     };
     class Int32 {
     public:
-        int32_t Int32;
+        int32_t Value;
+    };
+    class UInt32 {
+    public:
+        uint32_t Value;
     };
     class Bool {
     public:
-        bool Bool;
+        bool Value;
     };
     class Float64 {
     public:
-        float Float64;
+        float Value;
     };
 
 }
@@ -326,14 +342,14 @@ namespace odbctemplate
     public:
         void
         setInt64NotNull(Int64 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
         setInt64Nullable(NullInt64 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Int64, 0, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_LONG, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -341,14 +357,14 @@ namespace odbctemplate
 
         void
         setInt32NotNull(Int32 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
         setInt32Nullable(NullInt32 * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Int32, 0, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -358,7 +374,7 @@ namespace odbctemplate
         void
         setCharNotNull(Char<N> *buffer){
             
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, NULL);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Value, N, NULL);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -366,7 +382,7 @@ namespace odbctemplate
         template<int N>
         void
         setCharNullable(NullChar<N> * buffer){
-            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Char, N, &buffer->len);
+            SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_CHAR, buffer->Value, N, &buffer->len);
              if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
@@ -407,7 +423,7 @@ namespace odbctemplate
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
             if(ret.len > 0)
-                ret.String.assign(buffer, ret.len);
+                ret.Value.assign(buffer, ret.len);
             return ret;
         }
 
@@ -424,7 +440,7 @@ namespace odbctemplate
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
-            ret.String.assign(buffer);
+            ret.Value.assign(buffer);
             return ret;
         }
 
@@ -467,8 +483,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SLONG, 
-                                &ret.Int64, 
-                                sizeof(ret.Int64), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 (SQLLEN *)&ret.len);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -486,8 +502,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SLONG, 
-                                &ret.Int64, 
-                                sizeof(ret.Int64), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 NULL);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -523,8 +539,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SSHORT, 
-                                &ret.Int32, 
-                                sizeof(ret.Int32), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 NULL);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -542,8 +558,8 @@ namespace odbctemplate
             status = SQLGetData (stmt, 
                                 index++, 
                                 SQL_C_SSHORT, 
-                                &ret.Int32, 
-                                sizeof(ret.Int32), 
+                                &ret.Value, 
+                                sizeof(ret.Value), 
                                 (SQLLEN *)&ret.len);
             if(status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -582,6 +598,7 @@ namespace odbctemplate
 
 namespace odbctemplate
 {
+
     class OdbcFetcher{
     public:
         std::shared_ptr<OdbcStmt> stmt;
@@ -629,6 +646,197 @@ namespace odbctemplate
             return *this;
         }
 
+        OdbcFetcher
+        bindCol(const u_short index, Int64 * buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_LONG, &buffer->Value, 0, NULL);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        OdbcFetcher
+        bindCol(const u_short index, NullInt64 * buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_LONG, &buffer->Value, 0, &buffer->len);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        OdbcFetcher
+        bindCol(const u_short index, Int32 * buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_SHORT, &buffer->Value, 0, NULL);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        OdbcFetcher
+        bindCol(const u_short index, NullInt32 * buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_SHORT, &buffer->Value, 0, &buffer->len);
+            if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        template<int N>
+        OdbcFetcher
+        bindCol(const u_short index, Char<N> *buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_CHAR, buffer->Value, N, NULL);
+             if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        template<int N>
+        OdbcFetcher
+        bindCol(const u_short index, NullChar<N> * buffer){
+            SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_CHAR, buffer->Value, N, &buffer->len);
+             if( status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+      
+        OdbcFetcher
+        getData(const u_short index, NullFloat64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, 
+                                index, 
+                                SQL_C_FLOAT, 
+                                &buffer->Value, 
+                                sizeof(buffer->Value), 
+                                (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, Float64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_FLOAT, &buffer->Value, sizeof(buffer->Value), NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, NullInt32 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_SSHORT, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, Int32 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_SSHORT, &buffer->Value, sizeof(buffer->Value), NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+        
+        OdbcFetcher
+        getData(const u_short index, NullUInt32 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_USHORT, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, UInt32 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_USHORT, &buffer->Value, sizeof(buffer->Value), NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, NullUInt64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_ULONG, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, UInt64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_ULONG, &buffer->Value, sizeof(buffer->Value), NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, NullInt64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_SLONG, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        OdbcFetcher
+        getData(const u_short index, Int64 * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_SLONG, &buffer->Value, sizeof(buffer->Value), NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        template<int N>
+        OdbcFetcher
+        getData(const u_short index, NullChar<N> * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_CHAR, buffer->Value, N, (SQLLEN *)&buffer->len);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+        template<int N>
+        OdbcFetcher
+        getData(const u_short index, Char<N> * buffer){
+            SQLRETURN status;
+            
+            status = SQLGetData (stmt->stmt, index, SQL_C_CHAR, buffer->Value, N, NULL);
+            if(status != SQL_SUCCESS){
+                odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
+            }
+            return *this;
+        }
+
+
         /**
          * @brief fetch를 1회 호출
          * 
@@ -645,14 +853,12 @@ namespace odbctemplate
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status); // no dbc error;
             }
-
             status = SQLFetch(stmt->stmt);
 
             if(status != SQL_SUCCESS) {
                 if(status == SQL_NULL_DATA){
                     odbctemplate::OdbcError::Throw("SQL_NULL_DATA should bind nullable"); 
                 }
-                
                 // SQL_NO_DATA / SQL_ERROR etc..
                 status = SQLFreeStmt(stmt->stmt, SQL_CLOSE);
                 return false;
@@ -986,13 +1192,13 @@ namespace odbctemplate
     class OdbcConnect{
         friend class OdbcConnectBuilder;
         friend class OdbcConnectCtl;
-    private:
+    public:
         std::shared_ptr<OdbcDbc> dbc;
     public:
         explicit OdbcConnect() = default;
         static OdbcConnectBuilder builder();
     
-    private:
+    public:
 
         /**
          * @brief BASE STMT 핸들러 
@@ -1013,7 +1219,7 @@ namespace odbctemplate
             return OdbcResetedStmt(stmt);
         }
 
-    public:
+
         /**
          * @brief preparedStmt 핸들러를 얻는다.
          * 
