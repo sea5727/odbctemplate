@@ -12,7 +12,6 @@ namespace odbctemplate
         std::shared_ptr<OdbcDbc> dbc;
     public:
         explicit OdbcConnect() = default;
-        static OdbcConnectBuilder builder();
     
     public:
 

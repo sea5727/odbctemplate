@@ -55,11 +55,5 @@ namespace odbctemplate
 
 
     };
-
-    OdbcConnectBuilder 
-    OdbcConnect::builder(){
-        return OdbcConnectBuilder ();
-    }
-
 }
 
