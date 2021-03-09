@@ -1,7 +1,7 @@
 # odbctemplate
 
 
-Easy db library for C++ wrapping the ODBC client C library
+Easy db library for C++ wrapping the ODBC client C library 
 
 ODBC C 라이브러리를 C++로 랩핑한 쉬운 DB 라이브러리
 
