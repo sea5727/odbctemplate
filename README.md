@@ -1,4 +1,4 @@
-# odbctemplate
+# odbctemplate 
 
 
 Easy db library for C++ wrapping the ODBC client C library 
