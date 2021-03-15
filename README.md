@@ -63,8 +63,19 @@ auto conn = odbctemplate::OdbcConnectBuilder()
 
 
 # Example 
+## data Type example
+```cpp
+odbctemplate::NullChar<10> COLUMN1;
+odbctemplate::NullInt64 COLUMN2;
+odbctemplate::NullInt32 COLUMN3;
+odbctemplate::NullInt32 COLUMN3;
+odbctemplate::Bool COLUMN4;
+odbctemplate::Float64 COLUMN5;
+
+```
 ## Data Object
 ```cpp
+
 class TSMS_HISTORY{
 public:
     odbctemplate::Int64 MSG_SEQ;
@@ -77,52 +88,53 @@ public:
 ```
 ## directExecute
 
--   INSERT/UPDATE/DELETE
+-   INSERT/UPDATE/DELETE   
+즉시 Insert/Update/Delete 쿼리를 사용하는 예제
 ```cpp
     auto count = 
     conn.directExecute("UPDATE TSMS_HISTORY SET SC_TIME=20210302 where MSG_SEQ=10590")
         .getUpdateRowCount();
 ```
--   SELECT
+-   SELECT   
+Select 예제
 ```cpp
-auto ret = 
+TSMS_HISTORY data;
+auto fetcher = 
     conn.directExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
-    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-        TSMS_HISTORY ret;
-        ret.MSG_SEQ = helper.getInt64();
-        ret.PROC_RESULT = helper.getNullInt64();
-        ret.IN_SECT = helper.getNullInt64();
-        ret.SC_TIME = helper.getString();
-        ret.SEND_TIME = helper.getNullString();
-        ret.IN_SIP_URI = helper.getNullString();
-        return ret;
-    });
+    .bindCol(1, &data.MSG_SEQ)
+    .bindCol(2, &data.PROC_RESULT)
+    .bindCol(3, &data.IN_SECT)
+    .bindCol(4, &data.SC_TIME)
+    .bindCol(5, &data.SEND_TIME)
+    .bindCol(6, &data.IN_SIP_URI);
 
-for(auto & result : ret){
-    result.print();
+while(fetcher.fetch()){
+    std::cout << "MSG_SEQ: " << data.MSG_SEQ << std::endl;
+    std::cout << "PROC_RESULT: " << data.PROC_RESULT << std::endl;
+    std::cout << "IN_SECT: " << data.IN_SECT << std::endl;
+    std::cout << "SC_TIME: " << data.SC_TIME << std::endl;
+    std::cout << "SEND_TIME: " << data.SEND_TIME << std::endl;
+    std::cout << "IN_SIP_URI: " << data.IN_SIP_URI << std::endl;
 }
 
 ```
 
-## preparedExecute ( Binding Query )
+## preparedExecute ( Binding Query )   
+binding query example : generic type
 ```cpp
-auto ret = 
+auto fetcher = 
 conn.preparedExecute("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ > ? and MSG_SEQ < ?;", 10587, 10631)
-    .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-    TSMS_HISTORY ret;
-    ret.MSG_SEQ = helper.getInt64();
-    ret.PROC_RESULT = helper.getNullInt64();
-    ret.IN_SECT = helper.getNullInt64();
-    ret.SC_TIME = helper.getString();
-    ret.SEND_TIME = helper.getNullString();
-    ret.IN_SIP_URI = helper.getNullString();
-    return ret;
-});
+    .bindCol(1, &data.MSG_SEQ)
+    .bindCol(2, &data.PROC_RESULT)
+    .bindCol(3, &data.IN_SECT)
+    .bindCol(4, &data.SC_TIME)
+    .bindCol(5, &data.SEND_TIME)
+    .bindCol(6, &data.IN_SIP_URI);
 
-printf("size:%d\n", ret.size());
-for(auto & result : ret){
-    result.print();
+while(fetcher.fetch()){
+    //TODO 
 }
+
 ```
 
 ## Example : preparedStmt ( REUSE QUERY )
@@ -132,25 +144,20 @@ for(auto & result : ret){
 auto stmt = conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY where MSG_SEQ = ?;");
 
 for(int i = 10590 ; i < 10631; i++){
-    auto ret = stmt.bindExecute(i)
-        .fetch<TSMS_HISTORY>([](odbctemplate::FetchHelper & helper){
-            TSMS_HISTORY ret;
-            ret.MSG_SEQ = helper.getInt64();
-            ret.PROC_RESULT = helper.getNullInt64();
-            ret.IN_SECT = helper.getNullInt64();
-            ret.SC_TIME = helper.getString();
-            ret.SEND_TIME = helper.getNullString();
-            ret.IN_SIP_URI = helper.getNullString();
-            return ret;
-        });
-    printf("size:%d\n", ret.size());
-    for(auto & result : ret){
-        result.print();
+    auto fetcher = stmt.bindExecute(i)
+        .bindCol(1, &data.MSG_SEQ)
+        .bindCol(2, &data.PROC_RESULT)
+        .bindCol(3, &data.IN_SECT)
+        .bindCol(4, &data.SC_TIME)
+        .bindCol(5, &data.SEND_TIME)
+        .bindCol(6, &data.IN_SIP_URI);
+    if(fetcher.fetch()){
+        //TODO
     }
 }
 ```
 
-## Example : UPDATE / INSERT / DELETE 
+## Example : UPDATE / INSERT / DELETE (Reuse)
 
 ```cpp
 // update one line 
@@ -167,34 +174,5 @@ for(int i = 10591 ; i < 10595 ; i++){
 }
 
 ```
-
-
-
-
-
-## Example : BindCol ( Select Many )
-
-```cpp
-TSMS_HISTORY result;
-
-auto stmt = 
-conn.preparedStmt("select MSG_SEQ, PROC_RESULT, IN_SECT, SC_TIME, SEND_TIME, IN_SIP_URI from TSMS_HISTORY;")
-    .bindResultCol([&result](odbctemplate::BindColHelper & helper){
-        helper.setInt64NotNull(&result.MSG_SEQ);
-        helper.setInt64Nullable(&result.PROC_RESULT);
-        helper.setInt64Nullable(&result.IN_SECT);
-        helper.setCharNotNull(&result.SC_TIME);
-        helper.setCharNullable(&result.SEND_TIME);
-        helper.setCharNullable(&result.IN_SIP_URI);
-    });
-
-auto fetcher = stmt.Execute();
-while(fetcher.fetch()){
-    result.print();
-}
-
-```
-
-
 
 
