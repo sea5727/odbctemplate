@@ -342,8 +342,6 @@ namespace odbctemplate
   
             SQLRETURN status;
             
-            // status = SQLFreeStmt(stmt->stmt, SQL_RESET_PARAMS);
-            // std::cout << "getSuccessRow return  : " << status << std::endl;
             SQLLEN row;
             status = SQLRowCount(stmt->stmt, &row);
             if( status != SQL_SUCCESS){
