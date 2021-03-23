@@ -106,7 +106,7 @@ namespace odbctemplate
                                     (SQLCHAR *)text,
                                     sizeof(text), 
                                     &len );
-                std::cout << "state:" << state << "text:" << text << std::endl;
+                // std::cout << "state:" << state << "text:" << text << std::endl;
                 if(ret != SQL_SUCCESS)
                     break;
                 
