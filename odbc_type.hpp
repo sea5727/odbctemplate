@@ -40,13 +40,13 @@ namespace odbctemplate
     public:
         uint64_t Value;
     };
-    class NullInt32 : public Nullable {
+    class NullInt16 : public Nullable {
     public:
-        int32_t Value;
+        int16_t Value;
     };
-    class NullUInt32 : public Nullable {
+    class NullUInt16 : public Nullable {
     public:
-        uint64_t Value;
+        uint16_t Value;
     };
     class NullBool : public Nullable {
     public:
@@ -79,13 +79,13 @@ namespace odbctemplate
     public:
         uint64_t Value;
     };
-    class Int32 {
+    class Int16 {
     public:
-        int32_t Value;
+        int16_t Value;
     };
-    class UInt32 {
+    class UInt16 {
     public:
-        uint32_t Value;
+        uint16_t Value;
     };
     class Bool {
     public:

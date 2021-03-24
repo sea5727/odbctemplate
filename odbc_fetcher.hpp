@@ -69,7 +69,7 @@ namespace odbctemplate
             return *this;
         }
         OdbcFetcher
-        bindCol(const u_short index, Int32 * buffer){
+        bindCol(const u_short index, Int16 * buffer){
             SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_SHORT, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
@@ -77,7 +77,7 @@ namespace odbctemplate
             return *this;
         }
         OdbcFetcher
-        bindCol(const u_short index, NullInt32 * buffer){
+        bindCol(const u_short index, NullInt16 * buffer){
             SQLRETURN status = SQLBindCol(stmt->stmt, index, SQL_C_SHORT, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt->stmt, status);
@@ -131,7 +131,7 @@ namespace odbctemplate
         }
 
         OdbcFetcher
-        getData(const u_short index, NullInt32 * buffer){
+        getData(const u_short index, NullInt16 * buffer){
             SQLRETURN status;
             
             status = SQLGetData (stmt->stmt, index, SQL_C_SSHORT, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
@@ -142,7 +142,7 @@ namespace odbctemplate
         }
 
         OdbcFetcher
-        getData(const u_short index, Int32 * buffer){
+        getData(const u_short index, Int16 * buffer){
             SQLRETURN status;
             
             status = SQLGetData (stmt->stmt, index, SQL_C_SSHORT, &buffer->Value, sizeof(buffer->Value), NULL);
@@ -153,7 +153,7 @@ namespace odbctemplate
         }
         
         OdbcFetcher
-        getData(const u_short index, NullUInt32 * buffer){
+        getData(const u_short index, NullUInt16 * buffer){
             SQLRETURN status;
             
             status = SQLGetData (stmt->stmt, index, SQL_C_USHORT, &buffer->Value, sizeof(buffer->Value), (SQLLEN *)&buffer->len);
@@ -164,7 +164,7 @@ namespace odbctemplate
         }
 
         OdbcFetcher
-        getData(const u_short index, UInt32 * buffer){
+        getData(const u_short index, UInt16 * buffer){
             SQLRETURN status;
             
             status = SQLGetData (stmt->stmt, index, SQL_C_USHORT, &buffer->Value, sizeof(buffer->Value), NULL);

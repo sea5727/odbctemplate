@@ -52,8 +52,8 @@ auto conn = odbctemplate::OdbcConnectBuilder()
 -   Type들.
     -   Int64
     -   NullInt64
-    -   Int32
-    -   NullInt32
+    -   Int16
+    -   NullInt16
     -   Float
     -   NullFloat
     -   String
@@ -67,8 +67,8 @@ auto conn = odbctemplate::OdbcConnectBuilder()
 ```cpp
 odbctemplate::NullChar<10> COLUMN1;
 odbctemplate::NullInt64 COLUMN2;
-odbctemplate::NullInt32 COLUMN3;
-odbctemplate::NullInt32 COLUMN3;
+odbctemplate::NullInt16 COLUMN3;
+odbctemplate::NullInt16 COLUMN3;
 odbctemplate::Bool COLUMN4;
 odbctemplate::Float64 COLUMN5;
 

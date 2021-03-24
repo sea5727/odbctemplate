@@ -34,14 +34,14 @@ namespace odbctemplate
         }
 
         void
-        setInt32NotNull(Int32 * buffer){
+        setInt16NotNull(Int16 * buffer){
             SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, NULL);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
             }
         }
         void
-        setInt32Nullable(NullInt32 * buffer){
+        setInt16Nullable(NullInt16 * buffer){
             SQLRETURN status = SQLBindCol(stmt, index++, SQL_C_SHORT, &buffer->Value, 0, &buffer->len);
             if( status != SQL_SUCCESS){
                 odbctemplate::OdbcError::Throw(SQL_HANDLE_STMT, stmt, status);
@@ -207,9 +207,9 @@ namespace odbctemplate
             return buffer;
         }
 
-        Int32
-        getInt32(){
-            Int32 ret;
+        Int16
+        getInt16(){
+            Int16 ret;
             short buffer = 0;
             SQLRETURN status;
             SQLLEN len = 0;
@@ -226,9 +226,9 @@ namespace odbctemplate
             return ret;
         }
 
-        NullInt32
-        getNullInt32(){
-            NullInt32 ret;
+        NullInt16
+        getNullInt16(){
+            NullInt16 ret;
             short buffer = 0;
             SQLRETURN status;
             SQLLEN len = 0;

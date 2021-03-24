@@ -17,7 +17,6 @@ files = [
 'odbc_prepared_stmt.hpp',
 'odbc_reseted_stmt.hpp',
 'odbc_connect.hpp',
-'odbc_connection_pool.hpp',
 'odbc_connect_interface.hpp',
 'odbc_connect_builder.hpp']
 
